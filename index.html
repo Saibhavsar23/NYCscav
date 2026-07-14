@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SCAV 2026: NYC Scavenger Hunt</title>
+    <!-- City skyline favicon for the browser tab -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏙️</text></svg>">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font -->
@@ -109,24 +111,6 @@
                 <h3 class="font-extrabold text-lg text-white mb-4">Real-Time Rankings</h3>
                 <div class="space-y-3" id="leaderboard-container">
                     <!-- Dynamic rows inserted here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB CONTENT: Squads Management Tab (Switch Squads only — renaming is now host-controlled) -->
-        <div id="view-squads" class="hidden space-y-4">
-            <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
-                <div>
-                    <h3 class="font-extrabold text-lg text-white">Your Squad</h3>
-                    <p class="text-xs text-zinc-400 mt-1">Switch which team this device is playing as. Renaming teams is handled by the host.</p>
-                </div>
-
-                <!-- Session switcher option -->
-                <div class="border-t border-zinc-800 pt-3 text-center space-y-2">
-                    <h4 class="text-sm font-bold text-zinc-300 text-left">Active Session</h4>
-                    <button onclick="triggerSwitchActiveTeam()" class="w-full py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:bg-zinc-850 text-xs font-bold text-rose-400 transition">
-                        Switch Active Team / Change Squad
-                    </button>
                 </div>
             </div>
         </div>
@@ -247,10 +231,6 @@
             <span class="text-lg mb-1 leading-none">🏆</span>
             <span>Leaderboard</span>
         </button>
-        <button onclick="switchTab('squads')" id="nav-squads" class="flex flex-col items-center text-zinc-400 text-[10px] font-bold transition">
-            <span class="text-lg mb-1 leading-none">👥</span>
-            <span>Squads</span>
-        </button>
         <button onclick="switchTab('host')" id="nav-host" class="flex flex-col items-center text-zinc-400 text-[10px] font-bold transition">
             <span class="text-lg mb-1 leading-none">🔑</span>
             <span>Host Panel</span>
@@ -331,7 +311,10 @@
 
         const DEFAULT_TEAMS = ["Team 1", "Team 2", "Team 3", "Team 4"];
 
-        let selectedTeam = localStorage.getItem("squadId") || null;
+        // Team is intentionally NOT persisted — reloading the tab returns to the picker so a
+        // device can switch teams simply by refreshing. Completions are stored server-side per
+        // team, so re-picking the same team restores all progress.
+        let selectedTeam = null;
         let selectedCategory = "easy";
         let teamCompletedChallenges = {};
 
@@ -381,16 +364,8 @@
         // --- Session Handlers ---
         window.selectTeam = function(team) {
             selectedTeam = team;
-            localStorage.setItem("squadId", team);
             document.getElementById("splash-screen").classList.add("hidden");
             initializeSession();
-        };
-
-        window.triggerSwitchActiveTeam = function() {
-            localStorage.removeItem("squadId");
-            selectedTeam = null;
-            document.getElementById("splash-screen").classList.remove("hidden");
-            switchTab("challenges"); // Reset focus tab to default
         };
 
         function initializeSession() {
@@ -468,8 +443,8 @@
 
         // Tab switching engine
         window.switchTab = function(tabId) {
-            const views = ["view-challenges", "view-leaderboard", "view-squads", "view-host"];
-            const navs = ["nav-challenges", "nav-leaderboard", "nav-squads", "nav-host"];
+            const views = ["view-challenges", "view-leaderboard", "view-host"];
+            const navs = ["nav-challenges", "nav-leaderboard", "nav-host"];
 
             views.forEach(view => {
                 const el = document.getElementById(view);
@@ -654,6 +629,18 @@
                     if (statusData && statusData.media && statusData.media !== 'offline') {
                         cardHTML += mediaButtonsHtml('viewOwnMedia', 'openOwnMediaNewTab', item.id);
                     }
+                    // Player controls: swap the submitted media, or undo the completion entirely
+                    cardHTML += `
+                        <div class="pt-1 flex space-x-2">
+                            <label class="flex-1 text-center py-2 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-850 text-xs text-zinc-300 font-bold cursor-pointer transition">
+                                🔄 Change Media
+                                <input type="file" accept="image/*,video/*" capture="environment" class="hidden" onchange="replaceMedia(event, '${item.id}')">
+                            </label>
+                            <button onclick="undoCompletion('${item.id}')" class="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold text-rose-400 transition">
+                                Undo
+                            </button>
+                        </div>
+                    `;
                 }
 
                 cardHTML += `</div>`;
@@ -804,7 +791,71 @@
             }
         };
 
-        // Safe Tiebreaker Parsing Utility [cite: 3, 32]
+        // Player replaces the media on an already-completed challenge (score is untouched)
+        window.replaceMedia = async function(event, id) {
+            const rawFile = event.target.files[0];
+            if (!rawFile) return;
+            if (pendingSubmissions.has(id)) return;
+            pendingSubmissions.add(id);
+
+            showToast("Compressing new media...", "bg-blue-600 border-blue-400 text-white");
+            try {
+                const readyFile = await compressAndResize(rawFile);
+                const storageRef = ref(storage, `submissions_raw/${selectedTeam}/${id}-${Date.now()}-${readyFile.name}`);
+                showToast("Uploading replacement...", "bg-amber-600 border-amber-500 text-white");
+                const uploadTask = uploadBytesResumable(storageRef, readyFile);
+                uploadTask.on('state_changed',
+                    () => {},
+                    (err) => {
+                        pendingSubmissions.delete(id);
+                        showToast(`Upload error: ${err.message}`, "bg-rose-600 border-rose-500 text-white");
+                    },
+                    async () => {
+                        try {
+                            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                            await updateDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
+                                media: downloadUrl,
+                                mediaType: readyFile.type || rawFile.type || "",
+                                timestamp: new Date()
+                            });
+                            showToast("Media updated!", "bg-emerald-600 border-emerald-500 text-white");
+                        } catch (e) {
+                            showToast("Could not save new media", "bg-rose-600 border-rose-500 text-white");
+                        } finally {
+                            pendingSubmissions.delete(id);
+                        }
+                    }
+                );
+            } catch (error) {
+                pendingSubmissions.delete(id);
+                showToast("Media replace failed", "bg-rose-600 border-rose-500 text-white");
+            }
+        };
+
+        // Player undoes their own completion (removes it; subtracts points if it was scored)
+        window.undoCompletion = function(challengeId) {
+            const c = teamCompletedChallenges[challengeId];
+            if (!c) return;
+            const meta = databasePayload.find(ch => ch.id === challengeId);
+            const label = meta ? meta.name : challengeId;
+            askConfirm(
+                "Undo challenge?",
+                `Mark "${label}" as not completed?${c.verified ? ` This removes ${c.points} points.` : " No points were awarded yet."}`,
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, "completions", `${selectedTeam}_${challengeId}`));
+                        if (c.verified === true) {
+                            await setDoc(doc(db, "scores", selectedTeam), {
+                                score: increment(-c.points)
+                            }, { merge: true });
+                        }
+                        showToast("Challenge undone", "bg-emerald-600 border-emerald-500 text-white");
+                    } catch (err) {
+                        showToast("Could not undo challenge", "bg-rose-600 border-rose-500 text-white");
+                    }
+                }
+            );
+        };
         function getTimestampMs(val) {
             if (!val) return Infinity;
             if (typeof val.toDate === 'function') return val.toDate().getTime();
