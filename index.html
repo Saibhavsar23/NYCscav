@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SCAV 2026: NYC Scavenger Hunt</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,6 +32,7 @@
 </head>
 <body class="h-full flex flex-col justify-between overflow-x-hidden select-none">
 
+    <!-- Screen 1: Team Selection Splash (Overlay) -->
     <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-950 p-6">
         <div class="w-full max-w-sm space-y-8 text-center">
             <div class="space-y-3">
@@ -42,29 +45,31 @@
                 <p class="text-sm text-zinc-400">Select your squad to initialize tracking and live metrics</p>
             </div>
             
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4" id="splash-team-buttons">
+                <!-- Team selection buttons updated dynamically in real-time with custom names -->
                 <button onclick="selectTeam('Team 1')" class="py-4 px-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-850 transition duration-200 flex flex-col items-center justify-center group">
-                    <span class="text-lg font-bold text-white group-hover:text-amber-400">Team 1</span>
+                    <span class="text-lg font-bold text-white group-hover:text-amber-400 splash-btn-text" id="splash-name-Team1">Team 1</span>
                 </button>
                 <button onclick="selectTeam('Team 2')" class="py-4 px-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-850 transition duration-200 flex flex-col items-center justify-center group">
-                    <span class="text-lg font-bold text-white group-hover:text-amber-400">Team 2</span>
+                    <span class="text-lg font-bold text-white group-hover:text-amber-400 splash-btn-text" id="splash-name-Team2">Team 2</span>
                 </button>
                 <button onclick="selectTeam('Team 3')" class="py-4 px-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-850 transition duration-200 flex flex-col items-center justify-center group">
-                    <span class="text-lg font-bold text-white group-hover:text-amber-400">Team 3</span>
+                    <span class="text-lg font-bold text-white group-hover:text-amber-400 splash-btn-text" id="splash-name-Team3">Team 3</span>
                 </button>
                 <button onclick="selectTeam('Team 4')" class="py-4 px-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-850 transition duration-200 flex flex-col items-center justify-center group">
-                    <span class="text-lg font-bold text-white group-hover:text-amber-400">Team 4</span>
+                    <span class="text-lg font-bold text-white group-hover:text-amber-400 splash-btn-text" id="splash-name-Team4">Team 4</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Sticky Live Topbar Header -->
     <header class="sticky top-0 z-40 w-full glass-panel border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <div class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" id="network-indicator"></div>
             <div>
-                <p class="text-xs text-zinc-400" id="current-team-indicator">SQUAD INITIALIZING</p>
-                <h2 class="text-lg font-bold leading-none" id="team-display-name">-</h2>
+                <p class="text-xs text-zinc-500 font-bold" id="current-team-indicator">CONNECTED SQUAD</p>
+                <h2 class="text-lg font-bold leading-none text-white" id="team-display-name">-</h2>
             </div>
         </div>
         <div class="flex space-x-2">
@@ -72,58 +77,89 @@
                 <p class="text-[10px] text-zinc-500 font-bold uppercase leading-none">Score</p>
                 <p class="text-sm font-black text-amber-400 leading-none mt-1" id="team-live-score">0</p>
             </div>
-            <div class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-center">
-                <p class="text-[10px] text-zinc-500 font-bold uppercase leading-none">Time Left</p>
-                <p class="text-sm font-black text-rose-500 leading-none mt-1" id="game-countdown">90m</p>
-            </div>
         </div>
     </header>
 
+    <!-- Main View Area (Scrollable) -->
     <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
         
+        <!-- UI Notifications (Toast) -->
         <div id="toast" class="hidden fixed top-20 left-4 right-4 z-50 p-4 rounded-xl shadow-lg border text-sm font-semibold flex items-center justify-between transform transition duration-300">
             <span id="toast-message"></span>
         </div>
 
-        <div id="view-rules" class="space-y-4">
-            <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
-                <div class="flex items-center space-x-2 text-amber-400">
-                    <h3 class="font-bold text-lg">Phase 1: Rules & Setup</h3>
-                </div>
-                <ul class="text-sm text-zinc-300 space-y-2 list-disc list-inside">
-                    <li>Teams must stay together at all times. No splitting up to collect separate challenges[cite: 5].</li>
-                    <li>Submissions must be posted to the group chat/website before 12:00 PM to count, unless the host approves a clear upload-delay issue[cite: 6].</li>
-                    <li>No running across streets, blocking sidewalks, entering private spaces without permission, climbing structures, or interrupting workers[cite: 7].</li>
-                    <li>Photos or videos inside stores are only allowed if the store permits it[cite: 8].</li>
-                    <li>If staff says no, leave politely and use an outside recap video instead[cite: 9].</li>
-                    <li>For language, food, or shopkeeper challenges, ask politely, keep the interaction brief, and step aside immediately if the person declines[cite: 10].</li>
-                    <li>Food challenges must be safe. Small snacks only, no stuffing food, no pressure to participate, and allergies override the task[cite: 11].</li>
-                    <li>The host is the final judge for whether a submission is clear, respectful, safe, and worth points[cite: 12].</li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="view-challenges" class="hidden space-y-4">
+        <!-- TAB CONTENT: Challenge Board -->
+        <div id="view-challenges" class="space-y-4">
+            <!-- Category Filtering Subheader -->
             <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
-                <button onclick="filterCategory('easy')" id="cat-btn-easy" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400">Easy (10pt)</button>
-                <button onclick="filterCategory('landmark')" id="cat-btn-landmark" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400">Landmarks (15pt)</button>
-                <button onclick="filterCategory('creative')" id="cat-btn-creative" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400">Creative (35pt)</button>
-                <button onclick="filterCategory('hard')" id="cat-btn-hard" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400">Hard (45pt)</button>
-                <button onclick="filterCategory('extra')" id="cat-btn-extra" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400">Extra (End-Game)</button>
+                <button onclick="filterCategory('easy')" id="cat-btn-easy" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Easy (10pt)</button>
+                <button onclick="filterCategory('landmark')" id="cat-btn-landmark" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Landmarks (15pt)</button>
+                <button onclick="filterCategory('creative')" id="cat-btn-creative" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Creative (35pt)</button>
+                <button onclick="filterCategory('hard')" id="cat-btn-hard" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Hard (45pt)</button>
+                <button onclick="filterCategory('extra')" id="cat-btn-extra" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Extra (End-Game)</button>
             </div>
 
+            <!-- Dynamic Challenge Cards Container -->
             <div id="challenges-grid" class="space-y-3"></div>
         </div>
 
+        <!-- TAB CONTENT: Leaderboard -->
         <div id="view-leaderboard" class="hidden space-y-4">
             <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800">
                 <h3 class="font-extrabold text-lg text-white mb-4">Real-Time Rankings</h3>
                 <div class="space-y-3" id="leaderboard-container">
-                    </div>
+                    <!-- Dynamic rows inserted here -->
+                </div>
             </div>
         </div>
 
+        <!-- TAB CONTENT: Squads Management Tab (Edit Names & Switch Squads) -->
+        <div id="view-squads" class="hidden space-y-4">
+            <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
+                <div>
+                    <h3 class="font-extrabold text-lg text-white">Squad Customization</h3>
+                    <p class="text-xs text-zinc-400 mt-1">Change names in real-time or swap active sessions.</p>
+                </div>
+
+                <!-- Squad Renaming Form Fields -->
+                <div class="space-y-3 border-t border-zinc-800 pt-3">
+                    <h4 class="text-sm font-bold text-zinc-300">Rename Squads</h4>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 1 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team1" placeholder="Rename Team 1" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 2 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team2" placeholder="Rename Team 2" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 3 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team3" placeholder="Rename Team 3" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 4 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team4" placeholder="Rename Team 4" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                    <button onclick="saveCustomTeamNames()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-extrabold transition">
+                        Update Team Names (Globally Syncs)
+                    </button>
+                </div>
+
+                <!-- Session switcher option -->
+                <div class="border-t border-zinc-800 pt-3 text-center space-y-2">
+                    <h4 class="text-sm font-bold text-zinc-300 text-left">Active Session</h4>
+                    <button onclick="triggerSwitchActiveTeam()" class="w-full py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:bg-zinc-850 text-xs font-bold text-rose-400 transition">
+                        Switch Active Team / Change Squad
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: Judge / Host Panel -->
         <div id="view-host" class="hidden space-y-4">
+            <!-- Pin Entry Screen -->
             <div id="host-auth-container" class="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-center space-y-4">
                 <h3 class="font-extrabold text-lg text-white">Enter Host Access Code</h3>
                 <p class="text-xs text-zinc-400">Accessing administrative scoring panels requires the game code</p>
@@ -131,19 +167,12 @@
                 <button onclick="verifyHostPin()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-sm font-extrabold transition">Verify Authorization</button>
             </div>
 
+            <!-- Authentic Host Panel -->
             <div id="host-dashboard-container" class="hidden space-y-4">
                 <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="font-extrabold text-lg text-white">Host Controller Mode</h3>
                         <span class="text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">ADMIN ACTIVE</span>
-                    </div>
-
-                    <div class="border-t border-zinc-800 pt-3 space-y-2">
-                        <h4 class="font-bold text-sm text-zinc-300">Set Game End-Time</h4>
-                        <div class="flex space-x-2">
-                            <button onclick="setTimerFirestore(90)" class="flex-1 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold hover:bg-zinc-900 transition">Set 90 Minutes</button>
-                            <button onclick="setTimerFirestore(0)" class="flex-1 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold hover:bg-zinc-900 transition">Set to 12:00 PM</button>
-                        </div>
                     </div>
                     
                     <div class="border-t border-zinc-800 pt-3">
@@ -158,25 +187,33 @@
 
     </main>
 
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-zinc-800 flex justify-around py-3 px-2">
-        <button onclick="switchTab('rules')" id="nav-rules" class="flex flex-col items-center text-zinc-400 text-xs active-tab font-bold">
-            <span class="text-lg">📜</span>
-            <span>Rules</span>
-        </button>
-        <button onclick="switchTab('challenges')" id="nav-challenges" class="flex flex-col items-center text-zinc-400 text-xs font-bold">
-            <span class="text-lg">🗺️</span>
+        <button onclick="switchTab('challenges')" id="nav-challenges" class="flex flex-col items-center text-zinc-400 text-[10px] active-tab font-bold transition">
+            <!-- Custom City Skyline Premium SVG -->
+            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18" />
+                <path d="M5 21V7l2-2h4l2 2v14" />
+                <path d="M13 21v-9l1-1h4l1 1v9" />
+                <path d="M9 9h.01M9 13h.01M9 17h.01M16 13h.01M16 17h.01" />
+            </svg>
             <span>Challenges</span>
         </button>
-        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="flex flex-col items-center text-zinc-400 text-xs font-bold">
-            <span class="text-lg">🏆</span>
+        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="flex flex-col items-center text-zinc-400 text-[10px] font-bold transition">
+            <span class="text-lg mb-1 leading-none">🏆</span>
             <span>Leaderboard</span>
         </button>
-        <button onclick="switchTab('host')" id="nav-host" class="flex flex-col items-center text-zinc-400 text-xs font-bold">
-            <span class="text-lg">🔑</span>
+        <button onclick="switchTab('squads')" id="nav-squads" class="flex flex-col items-center text-zinc-400 text-[10px] font-bold transition">
+            <span class="text-lg mb-1 leading-none">👥</span>
+            <span>Squads</span>
+        </button>
+        <button onclick="switchTab('host')" id="nav-host" class="flex flex-col items-center text-zinc-400 text-[10px] font-bold transition">
+            <span class="text-lg mb-1 leading-none">🔑</span>
             <span>Host Panel</span>
         </button>
     </nav>
 
+    <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, updateDoc, deleteDoc, getDoc, collection, addDoc, onSnapshot, query, where, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -193,7 +230,7 @@
 
         const app = initializeApp(firebaseConfig);
         
-        // Fix Bug 1: Correct modular configuration for local persistent DB storage
+        // Correct modular configuration for local persistent DB storage
         const db = initializeFirestore(app, {
             localCache: persistentLocalCache({
                 tabManager: persistentMultipleTabManager()
@@ -201,7 +238,7 @@
         });
         const storage = getStorage(app);
 
-        // Core App Data Object mapping exactly to the Scavenger Hunt Rules and Cards
+        // Core App Data Object mapping exactly to the Scavenger Hunt Rules and Cards [cite: "NYC 2026 Scavenger Hunt"]
         const databasePayload = [
             // EASY [cite: 15, 16]
             { id: "tough_pose", name: "Tough Start Pose", cat: "easy", pts: 10, desc: "Start at Pietro NoLita or the Elizabeth/Kenmare corner. Photo of one player striking a tough pose.", proof: "Team Photo with the storefront, street corner, or start landmark visible. Striking a tough pose." },
@@ -251,13 +288,16 @@
         let selectedTeam = localStorage.getItem("squadId") || null;
         let selectedCategory = "easy";
         let teamCompletedChallenges = {};
-        let gameEndTime = null;
+        
+        // Local state store for synced custom names
+        let dynamicTeamNames = {
+            "Team 1": "Team 1",
+            "Team 2": "Team 2",
+            "Team 3": "Team 3",
+            "Team 4": "Team 4"
+        };
 
-        if (selectedTeam) {
-            document.getElementById("splash-screen").classList.add("hidden");
-            initializeSession();
-        }
-
+        // --- Session Handlers ---
         window.selectTeam = function(team) {
             selectedTeam = team;
             localStorage.setItem("squadId", team);
@@ -265,29 +305,106 @@
             initializeSession();
         };
 
+        window.triggerSwitchActiveTeam = function() {
+            localStorage.removeItem("squadId");
+            selectedTeam = null;
+            document.getElementById("splash-screen").classList.remove("hidden");
+            switchTab("challenges"); // Reset focus tab to default
+        };
+
         function initializeSession() {
-            document.getElementById("current-team-indicator").innerText = "CONNECTED SQUAD";
-            document.getElementById("team-display-name").innerText = selectedTeam;
-            
+            updateHeaderSquadNames();
             listenToLeaderboard();
             listenToSquadCompletions();
-            listenToGameTimer();
             filterCategory("easy");
         }
 
+        // --- Custom Team Renaming Engine ---
+        function listenToGlobalNames() {
+            onSnapshot(doc(db, "config", "teamNames"), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    Object.keys(dynamicTeamNames).forEach(key => {
+                        if (data[key]) {
+                            dynamicTeamNames[key] = data[key];
+                        }
+                    });
+                }
+                updateHeaderSquadNames();
+                updateSelectionSplashUI();
+                renderChallenges();
+            });
+        }
+
+        // Update active displays throughout application elements
+        function updateHeaderSquadNames() {
+            if (selectedTeam) {
+                document.getElementById("team-display-name").innerText = dynamicTeamNames[selectedTeam] || selectedTeam;
+            }
+            // Populate Input fields inside Squad settings
+            Object.keys(dynamicTeamNames).forEach(key => {
+                const el = document.getElementById(`rename-input-${key}`);
+                if (el) el.value = dynamicTeamNames[key];
+            });
+        }
+
+        function updateSelectionSplashUI() {
+            Object.keys(dynamicTeamNames).forEach(key => {
+                const splashBtnText = document.getElementById(`splash-name-${key}`);
+                if (splashBtnText) {
+                    splashBtnText.innerText = dynamicTeamNames[key];
+                }
+            });
+        }
+
+        // Save customized group identifiers
+        window.saveCustomTeamNames = async function() {
+            const updated = {};
+            Object.keys(dynamicTeamNames).forEach(key => {
+                const el = document.getElementById(`rename-input-${key}`);
+                if (el && el.value.trim() !== "") {
+                    updated[key] = el.value.trim();
+                } else {
+                    updated[key] = key;
+                }
+            });
+
+            try {
+                showToast("Syncing squad custom names...", "bg-amber-600 border-amber-500 text-white");
+                await setDoc(doc(db, "config", "teamNames"), updated, { merge: true });
+                showToast("Names updated globally!", "bg-emerald-600 border-emerald-500 text-white");
+            } catch (err) {
+                showToast("Sync failure. Saving offline locally.", "bg-rose-600 border-rose-500 text-white");
+                Object.assign(dynamicTeamNames, updated);
+                updateHeaderSquadNames();
+            }
+        };
+
+        // --- Network Monitor ---
         window.addEventListener('online', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse");
         window.addEventListener('offline', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse");
 
+        // Tab switching engine with active navigation markers [Fixes Navigation Bugs]
         window.switchTab = function(tabId) {
-            ["view-rules", "view-challenges", "view-leaderboard", "view-host"].forEach(view => {
-                document.getElementById(view).classList.add("hidden");
-            });
-            ["nav-rules", "nav-challenges", "nav-leaderboard", "nav-host"].forEach(nav => {
-                document.getElementById(nav).classList.remove("active-tab");
+            // Correct array target mapping matching existing tabs
+            const views = ["view-challenges", "view-leaderboard", "view-squads", "view-host"];
+            const navs = ["nav-challenges", "nav-leaderboard", "nav-squads", "nav-host"];
+
+            views.forEach(view => {
+                const el = document.getElementById(view);
+                if (el) el.classList.add("hidden");
             });
 
-            document.getElementById(`view-${tabId}`).classList.remove("hidden");
-            document.getElementById(`nav-${tabId}`).classList.add("active-tab");
+            navs.forEach(nav => {
+                const el = document.getElementById(nav);
+                if (el) el.classList.remove("active-tab");
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            const targetNav = document.getElementById(`nav-${tabId}`);
+
+            if (targetView) targetView.classList.remove("hidden");
+            if (targetNav) targetNav.classList.add("active-tab");
 
             if (tabId === 'host') {
                 checkHostSessionAuth();
@@ -300,9 +417,9 @@
             categories.forEach(cat => {
                 const btn = document.getElementById(`cat-btn-${cat}`);
                 if (cat === catId) {
-                    btn.className = "px-3 py-1.5 rounded-full text-xs font-extrabold bg-amber-400 text-zinc-950 border border-amber-400";
+                    btn.className = "px-3 py-1.5 rounded-full text-xs font-extrabold bg-amber-400 text-zinc-950 border border-amber-400 whitespace-nowrap";
                 } else {
-                    btn.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400";
+                    btn.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap";
                 }
             });
             renderChallenges();
@@ -311,6 +428,7 @@
         // Render Challenges with integrated offline indicator and image preview checks
         function renderChallenges() {
             const container = document.getElementById("challenges-grid");
+            if (!container) return;
             container.innerHTML = "";
 
             const filtered = databasePayload.filter(c => c.cat === selectedCategory);
@@ -424,12 +542,10 @@
             });
         }
 
-        // Fix Bug 3: Capture bonus checkbox state synchronously at the click threshold
         window.processAndUpload = async function(event, id, defaultPoints, category) {
             const rawFile = event.target.files[0];
             if (!rawFile) return;
 
-            // Instantly capture DOM states before any file compression delay 
             let targetPoints = defaultPoints;
             const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
             if (isBonusChecked) {
@@ -445,7 +561,6 @@
                 showToast("Uploading payload to cloud storage...", "bg-amber-600 border-amber-500 text-white");
                 const uploadTask = uploadBytesResumable(storageRef, readyFile);
 
-                // Fix Bug 2: Safe implementation of state_changed with standard parameters
                 uploadTask.on('state_changed', 
                     (snapshot) => {}, 
                     (err) => {
@@ -461,11 +576,10 @@
                             media: downloadUrl,
                             points: targetPoints,
                             category: category,
-                            verified: category !== "extra", // Extra challenges start as reviewable pending 
+                            verified: category !== "extra",
                             timestamp: new Date()
                         });
 
-                        // Score Standard Challenges immediately
                         if (category !== "extra") {
                             await setDoc(doc(db, "scores", selectedTeam), {
                                 score: increment(targetPoints),
@@ -515,7 +629,7 @@
             }
         };
 
-        // Fix Bug 6: Safe Tiebreaker Parsing Utility
+        // Safe Tiebreaker Parsing Utility [cite: 3, 32]
         function getTimestampMs(val) {
             if (!val) return Infinity;
             if (typeof val.toDate === 'function') return val.toDate().getTime();
@@ -527,6 +641,7 @@
         function listenToLeaderboard() {
             onSnapshot(collection(db, "scores"), (snapshot) => {
                 const leaderboardEl = document.getElementById("leaderboard-container");
+                if (!leaderboardEl) return;
                 leaderboardEl.innerHTML = "";
                 
                 let teamsList = [];
@@ -557,12 +672,13 @@
 
                     const rankColors = ["text-amber-400 font-extrabold", "text-zinc-300 font-bold", "text-amber-700 font-semibold", "text-zinc-500"];
                     const badgeColor = rankColors[index] || "text-zinc-500";
+                    const teamDisplayName = dynamicTeamNames[t.id] || t.id;
 
                     leaderboardEl.innerHTML += `
                         <div class="flex items-center justify-between p-3 rounded-xl ${isUserTeam ? 'bg-amber-400/5 border border-amber-400/20' : 'bg-zinc-950/40 border border-zinc-850'}">
                             <div class="flex items-center space-x-3">
                                 <span class="text-sm ${badgeColor}">#${index + 1}</span>
-                                <span class="text-sm font-bold text-white">${t.id} ${isUserTeam ? '(You)' : ''}</span>
+                                <span class="text-sm font-bold text-white">${teamDisplayName} ${isUserTeam ? '(You)' : ''}</span>
                             </div>
                             <span class="text-sm font-black text-amber-400">${t.score || 0} pts</span>
                         </div>
@@ -583,7 +699,7 @@
             });
         }
 
-        // Fix Bug 5: Host Panel Authorization Security Handlers
+        // Host Panel Authorization Security Handlers [cite: 12]
         window.verifyHostPin = function() {
             const pinVal = document.getElementById("host-pin-input").value;
             if (pinVal === "1997" || pinVal === "2026") {
@@ -609,6 +725,7 @@
 
         function loadHostSubmissions() {
             const container = document.getElementById("host-pipeline-container");
+            if (!container) return;
             container.innerHTML = "";
 
             const q = query(collection(db, "completions"), where("verified", "==", false));
@@ -624,6 +741,7 @@
                     const rawData = snapDoc.data();
                     const documentId = snapDoc.id;
                     const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
+                    const groupName = dynamicTeamNames[rawData.team] || rawData.team;
 
                     let mediaContent = `<span class="text-amber-500 font-semibold italic text-xs">Offline Verification Required</span>`;
                     if (rawData.media && rawData.media !== 'offline') {
@@ -637,7 +755,7 @@
                         <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">${rawData.team}</span>
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">${groupName}</span>
                                     <h5 class="text-xs font-bold text-white mt-1.5">${meta ? meta.name : rawData.challengeId}</h5>
                                 </div>
                                 <span class="text-xs font-black text-amber-500">${rawData.points} PTS</span>
@@ -655,7 +773,6 @@
             });
         }
 
-        // Fix Bug 2: Proper modular deleteDoc flow
         window.judgeSubmission = async function(id, decision, team, points) {
             try {
                 if (decision === 'approve') {
@@ -664,9 +781,8 @@
                         score: increment(points),
                         checkInTime: new Date()
                     }, { merge: true });
-                    showToast(`Approved entry! Added +${points} to ${team}`, "bg-emerald-600 border-emerald-500 text-white");
+                    showToast(`Approved entry! Added +${points} to ${dynamicTeamNames[team] || team}`, "bg-emerald-600 border-emerald-500 text-white");
                 } else {
-                    // Correctly clean up rejected completions using deleteDoc
                     await deleteDoc(doc(db, "completions", id));
                     showToast("Denied submission successfully.", "bg-rose-600 border-rose-500 text-white");
                 }
@@ -675,66 +791,21 @@
             }
         };
 
-        // Fix Bug 4: Firestore Synced Countdown Pipeline
-        window.setTimerFirestore = async function(minutes) {
-            const target = new Date();
-            if (minutes === 0) {
-                target.setHours(12, 0, 0, 0); // Decouple to default 12:00 PM 
-            } else {
-                target.setMinutes(target.getMinutes() + minutes);
-            }
-            try {
-                await setDoc(doc(db, "config", "timer"), { targetTime: target });
-                showToast("Game clock successfully updated!", "bg-emerald-600 border-emerald-500 text-white");
-            } catch (e) {
-                showToast("Could not sync timer settings.", "bg-rose-600 border-rose-500 text-white");
-            }
-        };
-
-        function listenToGameTimer() {
-            onSnapshot(doc(db, "config", "timer"), (snapshot) => {
-                if (snapshot.exists() && snapshot.data().targetTime) {
-                    gameEndTime = snapshot.data().targetTime.toDate();
-                } else {
-                    // Failover baseline
-                    const defaultTarget = new Date();
-                    defaultTarget.setHours(12, 0, 0, 0);
-                    gameEndTime = defaultTarget;
-                }
-            });
-            startTimerEngine();
-        }
-
-        function startTimerEngine() {
-            const timerEl = document.getElementById("game-countdown");
-            function updateTimer() {
-                if (!gameEndTime) return;
-                const now = new Date();
-                let diff = gameEndTime - now;
-
-                if (diff < 0) {
-                    timerEl.innerText = "OVERTIME";
-                    timerEl.className = "text-sm font-black text-rose-500 leading-none mt-1 animate-pulse";
-                    return;
-                }
-
-                const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-                timerEl.innerText = `${hrs > 0 ? hrs + 'h ' : ''}${mins}m ${secs}s`;
-            }
-            setInterval(updateTimer, 1000);
-            updateTimer();
-        }
-
         function showToast(msg, bgClasses) {
             const t = document.getElementById("toast");
             const m = document.getElementById("toast-message");
+            if (!t || !m) return;
             m.innerText = msg;
             t.className = `fixed top-20 left-4 right-4 z-50 p-4 rounded-xl shadow-lg border text-sm font-semibold flex items-center justify-between transform transition duration-300 ${bgClasses}`;
             t.classList.remove("hidden");
             setTimeout(() => t.classList.add("hidden"), 3500);
+        }
+
+        // Initialize Realtime Custom Names Listener
+        listenToGlobalNames();
+
+        if (selectedTeam) {
+            initializeSession();
         }
     </script>
 </body>
