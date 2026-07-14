@@ -534,7 +534,7 @@
             return `
                 <div class="pt-1 flex space-x-2">
                     <button onclick="${viewFn}('${arg}')" class="flex-1 text-center py-2 rounded-xl border border-amber-400/30 bg-amber-400/10 text-xs text-amber-300 font-bold hover:bg-amber-400/20 transition">👁 View Here</button>
-                    <button onclick="${tabFn}('${arg}')" class="flex-1 text-center py-2 rounded-xl border border-zinc-800 bg-zinc-950 text-xs text-zinc-300 font-bold hover:bg-zinc-850 transition">↗ New Tab</button>
+                    <button onclick="${tabFn}('${arg}')" class="flex-1 text-center py-2 rounded-xl border border-zinc-800 bg-zinc-950 text-xs text-zinc-300 font-bold hover:bg-zinc-850 transition">↗ Open in New Tab</button>
                 </div>`;
         }
 
@@ -602,16 +602,18 @@
                     }
                     cardHTML += `
                         <div class="pt-2 flex space-x-2">
-                            <label class="flex-1 text-center py-2.5 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-850 text-xs text-zinc-300 font-bold cursor-pointer transition">
-                                📷 Camera Upload
+                            <label class="flex-1 text-center py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-xs text-zinc-950 font-extrabold cursor-pointer transition">
+                                📷 Add Photo / Video
                                 <input type="file" accept="image/*,video/*" capture="environment" class="hidden" onchange="processAndUpload(event, '${item.id}', ${item.pts}, '${item.cat}')">
                             </label>
-                            <button onclick="markOfflineOnly('${item.id}', ${item.pts}, '${item.cat}')" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold text-zinc-400 transition">
-                                Mark Offline
+                            <button onclick="markOfflineOnly('${item.id}', ${item.pts}, '${item.cat}')" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold text-zinc-300 transition">
+                                Mark as Completed
                             </button>
                         </div>
+                        <p class="text-[10px] text-zinc-500 leading-snug">Add a photo/video as proof, or tap <span class="text-zinc-400 font-semibold">Mark as Completed</span> to log it now and add proof later.</p>
                     `;
                 } else {
+                    const hasMedia = statusData && statusData.media && statusData.media !== 'offline';
                     if (isPendingReview) {
                         cardHTML += `
                             <div class="pt-1 text-[11px] text-amber-400 font-semibold italic">
@@ -620,21 +622,22 @@
                         `;
                     } else if (isOfflineStatus) {
                         cardHTML += `
-                            <div class="pt-1 text-[11px] text-amber-500 font-semibold italic">
-                                ⚠️ Marked offline. Please present evidence directly to the host.
+                            <div class="pt-1 text-[11px] text-emerald-400/90 font-semibold">
+                                ✅ Completed without proof yet — you can add a photo/video anytime below.
                             </div>
                         `;
                     }
-                    // Media buttons (View Here / New Tab) whenever real media exists
-                    if (statusData && statusData.media && statusData.media !== 'offline') {
+                    // Media view buttons whenever real media exists
+                    if (hasMedia) {
                         cardHTML += mediaButtonsHtml('viewOwnMedia', 'openOwnMediaNewTab', item.id);
                     }
-                    // Player controls: swap the submitted media, or undo the completion entirely
+                    // Player controls: add/replace the proof media, or undo the completion entirely.
+                    // No `capture` here so players can also pick an existing photo from their gallery.
                     cardHTML += `
                         <div class="pt-1 flex space-x-2">
                             <label class="flex-1 text-center py-2 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-850 text-xs text-zinc-300 font-bold cursor-pointer transition">
-                                🔄 Change Media
-                                <input type="file" accept="image/*,video/*" capture="environment" class="hidden" onchange="replaceMedia(event, '${item.id}')">
+                                ${hasMedia ? '🔄 Change Photo / Video' : '📷 Add Photo / Video'}
+                                <input type="file" accept="image/*,video/*" class="hidden" onchange="replaceMedia(event, '${item.id}')">
                             </label>
                             <button onclick="undoCompletion('${item.id}')" class="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold text-rose-400 transition">
                                 Undo
@@ -780,9 +783,9 @@
                         score: increment(targetPoints),
                         checkInTime: new Date()
                     }, { merge: true });
-                    showToast("Marked completed offline! Points updated locally.", "bg-emerald-600 border-emerald-500 text-white");
+                    showToast("Marked as completed! Points added.", "bg-emerald-600 border-emerald-500 text-white");
                 } else {
-                    showToast("Logged offline submission for end review.", "bg-amber-600 border-amber-400 text-white");
+                    showToast("Submitted for host review.", "bg-amber-600 border-amber-400 text-white");
                 }
             } catch (error) {
                 console.error("Offline fallback tracking failed internally.", error);
@@ -990,7 +993,7 @@
                 const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
                 const groupName = escapeHtml(dynamicTeamNames[rawData.team] || rawData.team);
 
-                let mediaBlock = `<span class="text-amber-500 font-semibold italic text-xs">Offline verification required</span>`;
+                let mediaBlock = `<span class="text-amber-500 font-semibold italic text-xs">No photo yet — verify in person</span>`;
                 if (rawData.media && rawData.media !== 'offline') {
                     mediaBlock = mediaButtonsHtml('viewMediaByDocId', 'openMediaNewTab', rawData.docId);
                 }
@@ -1019,6 +1022,13 @@
             const container = document.getElementById("host-manage-container");
             if (!container || !isHostAuthed()) return;
 
+            // This view re-renders on every score/completion change. If the host is mid-typing in a
+            // score field, a full re-render would wipe their input — so capture and restore it.
+            const active = document.activeElement;
+            const preserveId = (active && active.id && active.id.startsWith("score-input-")) ? active.id : null;
+            const preserveVal = preserveId ? active.value : null;
+            const preservePos = preserveId ? active.selectionStart : null;
+
             container.innerHTML = "";
             DEFAULT_TEAMS.forEach(key => {
                 const name = escapeHtml(dynamicTeamNames[key] || key);
@@ -1040,7 +1050,7 @@
                                 : `<span class="text-[9px] font-bold text-amber-400">PENDING</span>`;
                             const mediaBtn = (c.media && c.media !== 'offline')
                                 ? `<button onclick="viewMediaByDocId('${c.docId}')" class="text-[10px] text-amber-300 font-bold underline">view</button>`
-                                : `<span class="text-[10px] text-zinc-600 italic">offline</span>`;
+                                : `<span class="text-[10px] text-zinc-600 italic">no photo</span>`;
                             compRows += `
                                 <div class="flex items-center justify-between gap-2 py-1.5 border-t border-zinc-900">
                                     <div class="min-w-0">
@@ -1074,6 +1084,16 @@
                     </div>
                 `;
             });
+
+            // Restore the score field the host was editing, if any
+            if (preserveId) {
+                const el = document.getElementById(preserveId);
+                if (el) {
+                    el.value = preserveVal;
+                    el.focus();
+                    try { el.setSelectionRange(preservePos, preservePos); } catch (e) {}
+                }
+            }
         }
 
         // Set a team's absolute score to the value in its input
