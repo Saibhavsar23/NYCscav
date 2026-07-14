@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-zinc-950 text-zinc-100">
+<html lang="en" class="h-[100dvh] bg-zinc-950 text-zinc-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -18,6 +18,13 @@
         .active-tab {
             color: #fbbf24;
             border-bottom: 2px solid #fbbf24;
+        }
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
@@ -84,14 +91,14 @@
                     <h3 class="font-bold text-lg">Phase 1: Rules & Setup</h3>
                 </div>
                 <ul class="text-sm text-zinc-300 space-y-2 list-disc list-inside">
-                    <li>Teams must stay together at all times. No splitting up to collect separate challenges.</li>
-                    <li>Submissions must be posted before 12:00 PM to count, unless the host approves a clear upload-delay issue.</li>
-                    <li>No running across streets, blocking sidewalks, entering private spaces without permission, climbing structures, or interrupting workers.</li>
-                    <li>Photos or videos inside stores are only allowed if the store permits it.</li>
-                    <li>If staff says no, leave politely and use an outside recap video instead.</li>
-                    <li>For language, food, or shopkeeper challenges, ask politely, keep the interaction brief, and step aside immediately if the person declines.</li>
-                    <li>Food challenges must be safe. Small snacks only, no stuffing food, no pressure to participate, and allergies override the task.</li>
-                    <li>The host (Andrew or Sai) is the final judge for whether a submission is clear, respectful, safe, and worth points.</li>
+                    <li>Teams must stay together at all times. No splitting up to collect separate challenges[cite: 5].</li>
+                    <li>Submissions must be posted to the group chat/website before 12:00 PM to count, unless the host approves a clear upload-delay issue[cite: 6].</li>
+                    <li>No running across streets, blocking sidewalks, entering private spaces without permission, climbing structures, or interrupting workers[cite: 7].</li>
+                    <li>Photos or videos inside stores are only allowed if the store permits it[cite: 8].</li>
+                    <li>If staff says no, leave politely and use an outside recap video instead[cite: 9].</li>
+                    <li>For language, food, or shopkeeper challenges, ask politely, keep the interaction brief, and step aside immediately if the person declines[cite: 10].</li>
+                    <li>Food challenges must be safe. Small snacks only, no stuffing food, no pressure to participate, and allergies override the task[cite: 11].</li>
+                    <li>The host is the final judge for whether a submission is clear, respectful, safe, and worth points[cite: 12].</li>
                 </ul>
             </div>
         </div>
@@ -117,17 +124,33 @@
         </div>
 
         <div id="view-host" class="hidden space-y-4">
-            <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-extrabold text-lg text-white">Host Controller Mode</h3>
-                    <span class="text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">ADMIN PANEL</span>
-                </div>
-                <p class="text-xs text-zinc-400">Allows direct score updates, review approval of Extra Challenges, and applying late-minute run penalties.</p>
-                
-                <div class="border-t border-zinc-800 pt-3">
-                    <h4 class="font-bold text-sm mb-3">Active Review Pipeline</h4>
-                    <div class="space-y-3" id="host-pipeline-container">
-                        <p class="text-zinc-500 text-xs py-2 italic text-center">No submissions currently requiring dynamic host verification.</p>
+            <div id="host-auth-container" class="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-center space-y-4">
+                <h3 class="font-extrabold text-lg text-white">Enter Host Access Code</h3>
+                <p class="text-xs text-zinc-400">Accessing administrative scoring panels requires the game code</p>
+                <input type="password" id="host-pin-input" placeholder="••••" class="block w-32 mx-auto text-center bg-zinc-950 border border-zinc-800 rounded-xl py-2.5 text-white tracking-widest font-bold focus:outline-none focus:border-amber-500">
+                <button onclick="verifyHostPin()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-sm font-extrabold transition">Verify Authorization</button>
+            </div>
+
+            <div id="host-dashboard-container" class="hidden space-y-4">
+                <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-extrabold text-lg text-white">Host Controller Mode</h3>
+                        <span class="text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">ADMIN ACTIVE</span>
+                    </div>
+
+                    <div class="border-t border-zinc-800 pt-3 space-y-2">
+                        <h4 class="font-bold text-sm text-zinc-300">Set Game End-Time</h4>
+                        <div class="flex space-x-2">
+                            <button onclick="setTimerFirestore(90)" class="flex-1 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold hover:bg-zinc-900 transition">Set 90 Minutes</button>
+                            <button onclick="setTimerFirestore(0)" class="flex-1 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold hover:bg-zinc-900 transition">Set to 12:00 PM</button>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-zinc-800 pt-3">
+                        <h4 class="font-bold text-sm text-zinc-300 mb-3">Active Review Pipeline</h4>
+                        <div class="space-y-3" id="host-pipeline-container">
+                            <p class="text-zinc-500 text-xs py-2 italic text-center">No submissions currently requiring dynamic host verification.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,10 +179,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, getDoc, collection, addDoc, onSnapshot, query, where, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, updateDoc, deleteDoc, getDoc, collection, addDoc, onSnapshot, query, where, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // Integrated Configuration Object
         const firebaseConfig = {
             apiKey: "AIzaSyAWcFUR0t-3qOcWyNe5mf9FBfMLKv7a7p4",
             authDomain: "nycscav.firebaseapp.com",
@@ -170,10 +192,16 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        
+        // Fix Bug 1: Correct modular configuration for local persistent DB storage
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({
+                tabManager: persistentMultipleTabManager()
+            })
+        });
         const storage = getStorage(app);
 
-        // Core App Data Object containing full Scavenger Hunt Rules and Cards
+        // Core App Data Object mapping exactly to the Scavenger Hunt Rules and Cards
         const databasePayload = [
             // EASY [cite: 15, 16]
             { id: "tough_pose", name: "Tough Start Pose", cat: "easy", pts: 10, desc: "Start at Pietro NoLita or the Elizabeth/Kenmare corner. Photo of one player striking a tough pose.", proof: "Team Photo with the storefront, street corner, or start landmark visible. Striking a tough pose." },
@@ -214,7 +242,7 @@
             { id: "receipt_race", name: "Receipt Race Under $6", cat: "hard", pts: 45, desc: "Buy the cheapest shareable snack you can find for $6 or less.", proof: "Receipt photo plus 5-second video showing the item and each teammate taking one safe bite." },
             { id: "video_relay", name: "Four-Stop Video Relay", cat: "hard", pts: 45, desc: "Record four separate 3-second clips in four different locations and stitch them as one route relay.", proof: "One combined video or four clips posted back-to-back within 12 minutes." },
 
-            // EXTRA (Delayed reviews) [cite: 23, 24]
+            // EXTRA [cite: 23, 24]
             { id: "collectables", name: "Collectables", cat: "extra", pts: 45, desc: "Buy or find the coolest small collectible, souvenir, or random object.", proof: "Bring it and the receipt. The judge picks the winner based on uniqueness, humor, and presentation." },
             { id: "one_dollar", name: "The $1 Champion", cat: "extra", pts: 45, desc: "Buy the best item possible for $1 or less.", proof: "Bring it and the receipt. The judge decides the winner." },
             { id: "cheapscape", name: "Cheapscape", cat: "extra", pts: 45, desc: "Buy the cheapest item.", proof: "Bring it and the receipt. The judge picks the winner based on uniqueness, humor, and presentation." }
@@ -223,14 +251,13 @@
         let selectedTeam = localStorage.getItem("squadId") || null;
         let selectedCategory = "easy";
         let teamCompletedChallenges = {};
+        let gameEndTime = null;
 
-        // On-load state validation
         if (selectedTeam) {
             document.getElementById("splash-screen").classList.add("hidden");
             initializeSession();
         }
 
-        // --- Session Handlers ---
         window.selectTeam = function(team) {
             selectedTeam = team;
             localStorage.setItem("squadId", team);
@@ -242,18 +269,15 @@
             document.getElementById("current-team-indicator").innerText = "CONNECTED SQUAD";
             document.getElementById("team-display-name").innerText = selectedTeam;
             
-            // Setup real-time listeners for squad data and globally sync scores
             listenToLeaderboard();
             listenToSquadCompletions();
-            startCountdown();
+            listenToGameTimer();
             filterCategory("easy");
         }
 
-        // --- Network Monitor ---
         window.addEventListener('online', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse");
         window.addEventListener('offline', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse");
 
-        // --- Tab Switcher ---
         window.switchTab = function(tabId) {
             ["view-rules", "view-challenges", "view-leaderboard", "view-host"].forEach(view => {
                 document.getElementById(view).classList.add("hidden");
@@ -266,11 +290,10 @@
             document.getElementById(`nav-${tabId}`).classList.add("active-tab");
 
             if (tabId === 'host') {
-                loadHostSubmissions();
+                checkHostSessionAuth();
             }
         };
 
-        // --- Category Selection ---
         window.filterCategory = function(catId) {
             selectedCategory = catId;
             const categories = ['easy', 'landmark', 'creative', 'hard', 'extra'];
@@ -285,7 +308,7 @@
             renderChallenges();
         };
 
-        // --- UI Rendering Engines ---
+        // Render Challenges with integrated offline indicator and image preview checks
         function renderChallenges() {
             const container = document.getElementById("challenges-grid");
             container.innerHTML = "";
@@ -315,7 +338,7 @@
                 `;
 
                 if (!isCompleted) {
-                    // Double Bonus checkbox for Cobblestone Walk [cite: 18]
+                    // Double Bonus Checkbox UI
                     if (item.id === 'cobblestone_walk') {
                         cardHTML += `
                             <div class="flex items-center space-x-2 py-1">
@@ -336,12 +359,22 @@
                             </button>
                         </div>
                     `;
-                } else if (isOfflineStatus) {
-                    cardHTML += `
-                        <div class="pt-1 text-[11px] text-amber-500 font-semibold italic">
-                            ⚠️ Marked offline. Please present evidence directly to the host.
-                        </div>
-                    `;
+                } else {
+                    if (isOfflineStatus) {
+                        cardHTML += `
+                            <div class="pt-1 text-[11px] text-amber-500 font-semibold italic">
+                                ⚠️ Marked offline. Please present evidence directly to the host.
+                            </div>
+                        `;
+                    } else if (statusData && statusData.media) {
+                        cardHTML += `
+                            <div class="pt-1">
+                                <a href="${statusData.media}" target="_blank" class="inline-flex items-center space-x-1 text-xs text-amber-400 hover:underline">
+                                    <span>🔍 View Submitted Media</span>
+                                </a>
+                            </div>
+                        `;
+                    }
                 }
 
                 cardHTML += `</div>`;
@@ -349,9 +382,9 @@
             });
         }
 
-        // --- Client Image Compression Processing Pipeline ---
+        // On-device Client Side Image Compressor
         async function compressAndResize(file) {
-            if (!file.type.startsWith('image/')) return file; // Do not compress video structures
+            if (!file.type.startsWith('image/')) return file;
 
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -391,10 +424,17 @@
             });
         }
 
-        // --- Upload and Core Engine Submissions ---
+        // Fix Bug 3: Capture bonus checkbox state synchronously at the click threshold
         window.processAndUpload = async function(event, id, defaultPoints, category) {
             const rawFile = event.target.files[0];
             if (!rawFile) return;
+
+            // Instantly capture DOM states before any file compression delay 
+            let targetPoints = defaultPoints;
+            const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
+            if (isBonusChecked) {
+                targetPoints = defaultPoints * 2;
+            }
 
             showToast("Compressing asset for weak networks...", "bg-blue-600 border-blue-400 text-white");
 
@@ -405,8 +445,9 @@
                 showToast("Uploading payload to cloud storage...", "bg-amber-600 border-amber-500 text-white");
                 const uploadTask = uploadBytesResumable(storageRef, readyFile);
 
+                // Fix Bug 2: Safe implementation of state_changed with standard parameters
                 uploadTask.on('state_changed', 
-                    null, 
+                    (snapshot) => {}, 
                     (err) => {
                         showToast(`Upload error: ${err.message}. Saving offline instead!`, "bg-rose-600 border-rose-500 text-white");
                         markOfflineOnly(id, defaultPoints, category);
@@ -414,24 +455,17 @@
                     async () => {
                         const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
                         
-                        let targetPoints = defaultPoints;
-                        // Calculate Cobblestone double bonus condition [cite: 18]
-                        if (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked) {
-                            targetPoints = defaultPoints * 2;
-                        }
-
-                        // Write challenge completion logic locally to state database
                         await setDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
                             team: selectedTeam,
                             challengeId: id,
                             media: downloadUrl,
                             points: targetPoints,
                             category: category,
-                            verified: category !== "extra", // Extras start as reviewable pending 
+                            verified: category !== "extra", // Extra challenges start as reviewable pending 
                             timestamp: new Date()
                         });
 
-                        // Standard Challenges get scored immediately 
+                        // Score Standard Challenges immediately
                         if (category !== "extra") {
                             await setDoc(doc(db, "scores", selectedTeam), {
                                 score: increment(targetPoints),
@@ -451,7 +485,8 @@
 
         window.markOfflineOnly = async function(id, defaultPoints, category) {
             let targetPoints = defaultPoints;
-            if (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked) {
+            const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
+            if (isBonusChecked) {
                 targetPoints = defaultPoints * 2;
             }
 
@@ -480,7 +515,15 @@
             }
         };
 
-        // --- Firestore Real-time Listeners ---
+        // Fix Bug 6: Safe Tiebreaker Parsing Utility
+        function getTimestampMs(val) {
+            if (!val) return Infinity;
+            if (typeof val.toDate === 'function') return val.toDate().getTime();
+            if (val instanceof Date) return val.getTime();
+            if (val.seconds) return val.seconds * 1000;
+            return Number(val) || Infinity;
+        }
+
         function listenToLeaderboard() {
             onSnapshot(collection(db, "scores"), (snapshot) => {
                 const leaderboardEl = document.getElementById("leaderboard-container");
@@ -491,7 +534,6 @@
                     teamsList.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Set default scores in real-time context if missing
                 const defaultTeams = ["Team 1", "Team 2", "Team 3", "Team 4"];
                 defaultTeams.forEach(tName => {
                     if (!teamsList.some(t => t.id === tName)) {
@@ -499,15 +541,12 @@
                     }
                 });
 
-                // Rank by Score descending; ties resolved by earliest check-in [cite: 3, 32]
+                // Rank by Score; ties resolved by earliest check-in timestamp [cite: 32]
                 teamsList.sort((a, b) => {
                     if (b.score !== a.score) {
                         return (b.score || 0) - (a.score || 0);
                     }
-                    // Earliest timestamp wins tiebreaker [cite: 3, 32]
-                    const timeA = a.checkInTime ? a.checkInTime.seconds : Infinity;
-                    const timeB = b.checkInTime ? b.checkInTime.seconds : Infinity;
-                    return timeA - timeB;
+                    return getTimestampMs(a.checkInTime) - getTimestampMs(b.checkInTime);
                 });
 
                 teamsList.forEach((t, index) => {
@@ -544,12 +583,34 @@
             });
         }
 
-        // --- Host System Operations Engine ---
+        // Fix Bug 5: Host Panel Authorization Security Handlers
+        window.verifyHostPin = function() {
+            const pinVal = document.getElementById("host-pin-input").value;
+            if (pinVal === "1997" || pinVal === "2026") {
+                sessionStorage.setItem("host_verified", "true");
+                showToast("Authorized", "bg-emerald-600 text-white border-emerald-500");
+                checkHostSessionAuth();
+            } else {
+                showToast("Invalid Credentials", "bg-rose-600 text-white border-rose-500");
+            }
+        };
+
+        function checkHostSessionAuth() {
+            const isAuthed = sessionStorage.getItem("host_verified") === "true";
+            if (isAuthed) {
+                document.getElementById("host-auth-container").classList.add("hidden");
+                document.getElementById("host-dashboard-container").classList.remove("hidden");
+                loadHostSubmissions();
+            } else {
+                document.getElementById("host-auth-container").classList.remove("hidden");
+                document.getElementById("host-dashboard-container").classList.add("hidden");
+            }
+        }
+
         function loadHostSubmissions() {
             const container = document.getElementById("host-pipeline-container");
             container.innerHTML = "";
 
-            // Query only reviews awaiting human validation 
             const q = query(collection(db, "completions"), where("verified", "==", false));
             onSnapshot(q, (snapshot) => {
                 container.innerHTML = "";
@@ -561,7 +622,7 @@
 
                 snapshot.forEach((snapDoc) => {
                     const rawData = snapDoc.data();
-                    const challengeId = snapDoc.id;
+                    const documentId = snapDoc.id;
                     const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
 
                     let mediaContent = `<span class="text-amber-500 font-semibold italic text-xs">Offline Verification Required</span>`;
@@ -585,8 +646,8 @@
                                 ${mediaContent}
                             </div>
                             <div class="flex space-x-2">
-                                <button onclick="judgeSubmission('${challengeId}', 'approve', '${rawData.team}', ${rawData.points})" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">Approve</button>
-                                <button onclick="judgeSubmission('${challengeId}', 'reject', '${rawData.team}', 0)" class="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition">Deny</button>
+                                <button onclick="judgeSubmission('${documentId}', 'approve', '${rawData.team}', ${rawData.points})" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">Approve</button>
+                                <button onclick="judgeSubmission('${documentId}', 'reject', '${rawData.team}', 0)" class="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition">Deny</button>
                             </div>
                         </div>
                     `;
@@ -594,6 +655,7 @@
             });
         }
 
+        // Fix Bug 2: Proper modular deleteDoc flow
         window.judgeSubmission = async function(id, decision, team, points) {
             try {
                 if (decision === 'approve') {
@@ -604,25 +666,52 @@
                     }, { merge: true });
                     showToast(`Approved entry! Added +${points} to ${team}`, "bg-emerald-600 border-emerald-500 text-white");
                 } else {
-                    // Deleted internally to allow retry on rejection
-                    await setDoc(doc(db, "completions", id), null);
+                    // Correctly clean up rejected completions using deleteDoc
+                    await deleteDoc(doc(db, "completions", id));
                     showToast("Denied submission successfully.", "bg-rose-600 border-rose-500 text-white");
                 }
-                loadHostSubmissions();
             } catch (err) {
                 showToast("Action execution failure", "bg-rose-600 border-rose-500 text-white");
             }
         };
 
-        // Countdown Timer: Targets 12:00 PM game end [cite: 6]
-        function startCountdown() {
+        // Fix Bug 4: Firestore Synced Countdown Pipeline
+        window.setTimerFirestore = async function(minutes) {
+            const target = new Date();
+            if (minutes === 0) {
+                target.setHours(12, 0, 0, 0); // Decouple to default 12:00 PM 
+            } else {
+                target.setMinutes(target.getMinutes() + minutes);
+            }
+            try {
+                await setDoc(doc(db, "config", "timer"), { targetTime: target });
+                showToast("Game clock successfully updated!", "bg-emerald-600 border-emerald-500 text-white");
+            } catch (e) {
+                showToast("Could not sync timer settings.", "bg-rose-600 border-rose-500 text-white");
+            }
+        };
+
+        function listenToGameTimer() {
+            onSnapshot(doc(db, "config", "timer"), (snapshot) => {
+                if (snapshot.exists() && snapshot.data().targetTime) {
+                    gameEndTime = snapshot.data().targetTime.toDate();
+                } else {
+                    // Failover baseline
+                    const defaultTarget = new Date();
+                    defaultTarget.setHours(12, 0, 0, 0);
+                    gameEndTime = defaultTarget;
+                }
+            });
+            startTimerEngine();
+        }
+
+        function startTimerEngine() {
             const timerEl = document.getElementById("game-countdown");
             function updateTimer() {
+                if (!gameEndTime) return;
                 const now = new Date();
-                const target = new Date();
-                target.setHours(12, 0, 0, 0); // Target set to 12:00 PM of current execution day [cite: 6]
+                let diff = gameEndTime - now;
 
-                let diff = target - now;
                 if (diff < 0) {
                     timerEl.innerText = "OVERTIME";
                     timerEl.className = "text-sm font-black text-rose-500 leading-none mt-1 animate-pulse";
@@ -639,7 +728,6 @@
             updateTimer();
         }
 
-        // --- Custom Dialog Alerts (Toast) ---
         function showToast(msg, bgClasses) {
             const t = document.getElementById("toast");
             const m = document.getElementById("toast-message");
