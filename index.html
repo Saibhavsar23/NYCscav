@@ -92,7 +92,7 @@
         <div id="view-challenges" class="space-y-4">
             <!-- Category Filtering Subheader -->
             <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
-                <button onclick="filterCategory('easy')" id="cat-btn-easy" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Easy (10pt)</button>
+                <button onclick="filterCategory('easy')" id="cat-btn-easy" class="px-3 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-zinc-950 border border-amber-400 whitespace-nowrap">Easy (10pt)</button>
                 <button onclick="filterCategory('landmark')" id="cat-btn-landmark" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Landmarks (15pt)</button>
                 <button onclick="filterCategory('creative')" id="cat-btn-creative" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Creative (35pt)</button>
                 <button onclick="filterCategory('hard')" id="cat-btn-hard" class="px-3 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-400 whitespace-nowrap">Hard (45pt)</button>
@@ -288,7 +288,16 @@
         let selectedTeam = localStorage.getItem("squadId") || null;
         let selectedCategory = "easy";
         let teamCompletedChallenges = {};
-        
+
+        // Guards against double-submitting the same challenge while a write is in flight
+        const pendingSubmissions = new Set();
+
+        // Live listener handles — tracked so we can unsubscribe before re-subscribing
+        // (previously these leaked a new listener every time a team switched or the host tab reopened)
+        let unsubscribeLeaderboard = null;
+        let unsubscribeCompletions = null;
+        let unsubscribeHostPipeline = null;
+
         // Local state store for synced custom names
         let dynamicTeamNames = {
             "Team 1": "Team 1",
@@ -296,6 +305,26 @@
             "Team 3": "Team 3",
             "Team 4": "Team 4"
         };
+
+        // --- Utility helpers ---
+
+        // Team keys are "Team 1" (with a space) but the DOM ids are "Team1" (no space).
+        // This helper bridges the two so element lookups actually resolve.
+        function domId(key) {
+            return key.replace(/\s+/g, '');
+        }
+
+        // Any user-editable string (custom team names) must be escaped before going into innerHTML,
+        // otherwise a team could rename itself to an <img onerror=...> payload and run script for everyone.
+        function escapeHtml(str) {
+            if (str == null) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
 
         // --- Session Handlers ---
         window.selectTeam = function(team) {
@@ -343,14 +372,14 @@
             }
             // Populate Input fields inside Squad settings
             Object.keys(dynamicTeamNames).forEach(key => {
-                const el = document.getElementById(`rename-input-${key}`);
+                const el = document.getElementById(`rename-input-${domId(key)}`);
                 if (el) el.value = dynamicTeamNames[key];
             });
         }
 
         function updateSelectionSplashUI() {
             Object.keys(dynamicTeamNames).forEach(key => {
-                const splashBtnText = document.getElementById(`splash-name-${key}`);
+                const splashBtnText = document.getElementById(`splash-name-${domId(key)}`);
                 if (splashBtnText) {
                     splashBtnText.innerText = dynamicTeamNames[key];
                 }
@@ -361,11 +390,12 @@
         window.saveCustomTeamNames = async function() {
             const updated = {};
             Object.keys(dynamicTeamNames).forEach(key => {
-                const el = document.getElementById(`rename-input-${key}`);
+                const el = document.getElementById(`rename-input-${domId(key)}`);
                 if (el && el.value.trim() !== "") {
                     updated[key] = el.value.trim();
                 } else {
-                    updated[key] = key;
+                    // Leaving a field blank keeps the current name instead of nuking it back to "Team N"
+                    updated[key] = dynamicTeamNames[key] || key;
                 }
             });
 
@@ -434,19 +464,24 @@
             const filtered = databasePayload.filter(c => c.cat === selectedCategory);
 
             filtered.forEach(item => {
-                const isCompleted = teamCompletedChallenges[item.id] ? true : false;
                 const statusData = teamCompletedChallenges[item.id];
+                const isCompleted = !!statusData;
+                // "Extra" category submissions sit in a host review queue and don't score until approved —
+                // previously the card showed "COMPLETED" immediately, which misleadingly implied points were already awarded.
+                const isPendingReview = isCompleted && statusData.category === 'extra' && !statusData.verified;
                 const isOfflineStatus = statusData && statusData.media === 'offline';
 
                 let scoreBadge = `<span class="text-xs font-extrabold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full">${item.pts} PTS</span>`;
-                if (isCompleted) {
+                if (isPendingReview) {
+                    scoreBadge = `<span class="text-xs font-extrabold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-full">PENDING REVIEW</span>`;
+                } else if (isCompleted) {
                     scoreBadge = `<span class="text-xs font-extrabold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full">COMPLETED</span>`;
                 }
 
                 let cardHTML = `
-                    <div class="p-4 rounded-2xl border transition duration-200 ${isCompleted ? 'bg-zinc-900/40 border-emerald-500/30' : 'bg-zinc-900 border-zinc-800'} space-y-3">
+                    <div class="p-4 rounded-2xl border transition duration-200 ${isPendingReview ? 'bg-zinc-900/40 border-amber-500/30' : isCompleted ? 'bg-zinc-900/40 border-emerald-500/30' : 'bg-zinc-900 border-zinc-800'} space-y-3">
                         <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-white text-md ${isCompleted ? 'line-through text-zinc-500' : ''}">${item.name}</h4>
+                            <h4 class="font-bold text-white text-md ${isCompleted && !isPendingReview ? 'line-through text-zinc-500' : ''}">${item.name}</h4>
                             ${scoreBadge}
                         </div>
                         <p class="text-sm text-zinc-400">${item.desc}</p>
@@ -478,7 +513,13 @@
                         </div>
                     `;
                 } else {
-                    if (isOfflineStatus) {
+                    if (isPendingReview) {
+                        cardHTML += `
+                            <div class="pt-1 text-[11px] text-amber-400 font-semibold italic">
+                                ⏳ Submitted — awaiting host approval before points are added.
+                            </div>
+                        `;
+                    } else if (isOfflineStatus) {
                         cardHTML += `
                             <div class="pt-1 text-[11px] text-amber-500 font-semibold italic">
                                 ⚠️ Marked offline. Please present evidence directly to the host.
@@ -506,10 +547,12 @@
 
             return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
+                // Previously there was no error handling anywhere in this chain, so a failed
+                // read/decode/encode would leave the promise unresolved and the upload would hang forever.
+                reader.onerror = () => resolve(file);
                 reader.onload = (event) => {
                     const img = new Image();
-                    img.src = event.target.result;
+                    img.onerror = () => resolve(file);
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const MAX_WIDTH = 1024;
@@ -535,16 +578,26 @@
                         ctx.drawImage(img, 0, 0, width, height);
 
                         canvas.toBlob((blob) => {
+                            if (!blob) {
+                                resolve(file); // toBlob can fail silently; fall back to the original file
+                                return;
+                            }
                             resolve(new File([blob], file.name, { type: 'image/jpeg' }));
                         }, 'image/jpeg', 0.82);
                     };
+                    img.src = event.target.result;
                 };
+                reader.readAsDataURL(file);
             });
         }
 
         window.processAndUpload = async function(event, id, defaultPoints, category) {
             const rawFile = event.target.files[0];
             if (!rawFile) return;
+
+            // Prevents a double-tap/slow-network double submit from double-counting points
+            if (pendingSubmissions.has(id)) return;
+            pendingSubmissions.add(id);
 
             let targetPoints = defaultPoints;
             const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
@@ -564,40 +617,49 @@
                 uploadTask.on('state_changed', 
                     (snapshot) => {}, 
                     (err) => {
+                        pendingSubmissions.delete(id);
                         showToast(`Upload error: ${err.message}. Saving offline instead!`, "bg-rose-600 border-rose-500 text-white");
                         markOfflineOnly(id, defaultPoints, category);
                     }, 
                     async () => {
-                        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                        
-                        await setDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
-                            team: selectedTeam,
-                            challengeId: id,
-                            media: downloadUrl,
-                            points: targetPoints,
-                            category: category,
-                            verified: category !== "extra",
-                            timestamp: new Date()
-                        });
+                        try {
+                            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-                        if (category !== "extra") {
-                            await setDoc(doc(db, "scores", selectedTeam), {
-                                score: increment(targetPoints),
-                                checkInTime: new Date()
-                            }, { merge: true });
-                            showToast(`Success! Verified +${targetPoints} points!`, "bg-emerald-600 border-emerald-500 text-white");
-                        } else {
-                            showToast("Extra submitted! Awaiting host review.", "bg-amber-600 border-amber-400 text-white");
+                            await setDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
+                                team: selectedTeam,
+                                challengeId: id,
+                                media: downloadUrl,
+                                points: targetPoints,
+                                category: category,
+                                verified: category !== "extra",
+                                timestamp: new Date()
+                            });
+
+                            if (category !== "extra") {
+                                await setDoc(doc(db, "scores", selectedTeam), {
+                                    score: increment(targetPoints),
+                                    checkInTime: new Date()
+                                }, { merge: true });
+                                showToast(`Success! Verified +${targetPoints} points!`, "bg-emerald-600 border-emerald-500 text-white");
+                            } else {
+                                showToast("Extra submitted! Awaiting host review.", "bg-amber-600 border-amber-400 text-white");
+                            }
+                        } finally {
+                            pendingSubmissions.delete(id);
                         }
                     }
                 );
             } catch (error) {
+                pendingSubmissions.delete(id);
                 showToast("Execution failure. Initializing offline save.", "bg-rose-600 border-rose-500 text-white");
                 markOfflineOnly(id, defaultPoints, category);
             }
         };
 
         window.markOfflineOnly = async function(id, defaultPoints, category) {
+            if (pendingSubmissions.has(id)) return;
+            pendingSubmissions.add(id);
+
             let targetPoints = defaultPoints;
             const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
             if (isBonusChecked) {
@@ -626,6 +688,8 @@
                 }
             } catch (error) {
                 console.error("Offline fallback tracking failed internally.", error);
+            } finally {
+                pendingSubmissions.delete(id);
             }
         };
 
@@ -639,7 +703,11 @@
         }
 
         function listenToLeaderboard() {
-            onSnapshot(collection(db, "scores"), (snapshot) => {
+            // Unsubscribe any prior listener first — previously calling this again (e.g. after switching
+            // teams) stacked up a brand-new onSnapshot listener every time, leaking reads and re-render churn.
+            if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+
+            unsubscribeLeaderboard = onSnapshot(collection(db, "scores"), (snapshot) => {
                 const leaderboardEl = document.getElementById("leaderboard-container");
                 if (!leaderboardEl) return;
                 leaderboardEl.innerHTML = "";
@@ -672,7 +740,8 @@
 
                     const rankColors = ["text-amber-400 font-extrabold", "text-zinc-300 font-bold", "text-amber-700 font-semibold", "text-zinc-500"];
                     const badgeColor = rankColors[index] || "text-zinc-500";
-                    const teamDisplayName = dynamicTeamNames[t.id] || t.id;
+                    // Escaped — this is a user-editable team name and was previously injected into innerHTML unescaped (XSS risk)
+                    const teamDisplayName = escapeHtml(dynamicTeamNames[t.id] || t.id);
 
                     leaderboardEl.innerHTML += `
                         <div class="flex items-center justify-between p-3 rounded-xl ${isUserTeam ? 'bg-amber-400/5 border border-amber-400/20' : 'bg-zinc-950/40 border border-zinc-850'}">
@@ -688,8 +757,12 @@
         }
 
         function listenToSquadCompletions() {
+            // Same leak fix as the leaderboard listener above — unsubscribe the old query before
+            // subscribing to the new team's completions.
+            if (unsubscribeCompletions) unsubscribeCompletions();
+
             const q = query(collection(db, "completions"), where("team", "==", selectedTeam));
-            onSnapshot(q, (snapshot) => {
+            unsubscribeCompletions = onSnapshot(q, (snapshot) => {
                 teamCompletedChallenges = {};
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -726,10 +799,13 @@
         function loadHostSubmissions() {
             const container = document.getElementById("host-pipeline-container");
             if (!container) return;
-            container.innerHTML = "";
+
+            // This was previously re-subscribed every single time the host tab was opened,
+            // stacking listeners indefinitely. Unsubscribe the old one first.
+            if (unsubscribeHostPipeline) unsubscribeHostPipeline();
 
             const q = query(collection(db, "completions"), where("verified", "==", false));
-            onSnapshot(q, (snapshot) => {
+            unsubscribeHostPipeline = onSnapshot(q, (snapshot) => {
                 container.innerHTML = "";
                 
                 if (snapshot.empty) {
@@ -741,7 +817,8 @@
                     const rawData = snapDoc.data();
                     const documentId = snapDoc.id;
                     const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
-                    const groupName = dynamicTeamNames[rawData.team] || rawData.team;
+                    // Escaped — same XSS concern as the leaderboard team name
+                    const groupName = escapeHtml(dynamicTeamNames[rawData.team] || rawData.team);
 
                     let mediaContent = `<span class="text-amber-500 font-semibold italic text-xs">Offline Verification Required</span>`;
                     if (rawData.media && rawData.media !== 'offline') {
