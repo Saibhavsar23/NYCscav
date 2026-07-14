@@ -604,7 +604,7 @@
                         <div class="pt-2 flex space-x-2">
                             <label class="flex-1 text-center py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-xs text-zinc-950 font-extrabold cursor-pointer transition">
                                 📷 Add Photo / Video
-                                <input type="file" accept="image/*,video/*" capture="environment" class="hidden" onchange="processAndUpload(event, '${item.id}', ${item.pts}, '${item.cat}')">
+                                <input type="file" accept="image/*,video/*" class="hidden" onchange="processAndUpload(event, '${item.id}', ${item.pts}, '${item.cat}')">
                             </label>
                             <button onclick="markOfflineOnly('${item.id}', ${item.pts}, '${item.cat}')" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold text-zinc-300 transition">
                                 Mark as Completed
