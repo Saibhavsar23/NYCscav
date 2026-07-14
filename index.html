@@ -165,7 +165,7 @@
                 <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
                     <div>
                         <h4 class="font-bold text-sm text-zinc-300">Manage Teams</h4>
-                        <p class="text-[11px] text-zinc-500 mt-1">Adjust scores and remove completed challenges.</p>
+                        <p class="text-[11px] text-zinc-500 mt-1">Review each team's completed challenges and remove any that shouldn't count. Scores update automatically.</p>
                     </div>
                     <div id="host-manage-container" class="space-y-3">
                         <p class="text-zinc-500 text-xs py-2 italic text-center">Loading team data…</p>
@@ -1017,17 +1017,10 @@
             });
         }
 
-        // Per-team management: adjust score, remove completions
+        // Per-team management: view score (driven only by challenges) and remove completions
         function renderHostManagement() {
             const container = document.getElementById("host-manage-container");
             if (!container || !isHostAuthed()) return;
-
-            // This view re-renders on every score/completion change. If the host is mid-typing in a
-            // score field, a full re-render would wipe their input — so capture and restore it.
-            const active = document.activeElement;
-            const preserveId = (active && active.id && active.id.startsWith("score-input-")) ? active.id : null;
-            const preserveVal = preserveId ? active.value : null;
-            const preservePos = preserveId ? active.selectionStart : null;
 
             container.innerHTML = "";
             DEFAULT_TEAMS.forEach(key => {
@@ -1071,62 +1064,14 @@
                             <h5 class="text-sm font-extrabold text-white truncate">${name}</h5>
                             <span class="text-xs font-black text-amber-400">${score} pts</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adjustTeamScore('${key}', -5)" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:bg-zinc-800">-5</button>
-                            <input type="number" id="score-input-${domId(key)}" value="${score}" class="w-16 text-center bg-zinc-900 border border-zinc-800 text-white rounded-lg py-1.5 text-xs focus:outline-none focus:border-amber-500">
-                            <button onclick="adjustTeamScore('${key}', 5)" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:bg-zinc-800">+5</button>
-                            <button onclick="setTeamScore('${key}')" class="flex-1 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-extrabold transition">Set Score</button>
-                        </div>
-                        <div class="pt-1">
+                        <div>
                             <p class="text-[10px] font-extrabold text-zinc-500 uppercase mb-0.5">Completed (${comps.length})</p>
                             ${compRows}
                         </div>
                     </div>
                 `;
             });
-
-            // Restore the score field the host was editing, if any
-            if (preserveId) {
-                const el = document.getElementById(preserveId);
-                if (el) {
-                    el.value = preserveVal;
-                    el.focus();
-                    try { el.setSelectionRange(preservePos, preservePos); } catch (e) {}
-                }
-            }
         }
-
-        // Set a team's absolute score to the value in its input
-        window.setTeamScore = async function(team) {
-            const el = document.getElementById(`score-input-${domId(team)}`);
-            if (!el) return;
-            const val = Number(el.value);
-            if (!Number.isFinite(val)) {
-                showToast("Enter a valid number", "bg-rose-600 border-rose-500 text-white");
-                return;
-            }
-            try {
-                await setDoc(doc(db, "scores", team), {
-                    score: val,
-                    checkInTime: (latestScores[team] && latestScores[team].checkInTime) || new Date()
-                }, { merge: true });
-                showToast(`${dynamicTeamNames[team] || team} set to ${val} pts`, "bg-emerald-600 border-emerald-500 text-white");
-            } catch (err) {
-                showToast("Could not update score", "bg-rose-600 border-rose-500 text-white");
-            }
-        };
-
-        // Quick relative adjustment
-        window.adjustTeamScore = async function(team, delta) {
-            try {
-                await setDoc(doc(db, "scores", team), {
-                    score: increment(delta),
-                    checkInTime: (latestScores[team] && latestScores[team].checkInTime) || new Date()
-                }, { merge: true });
-            } catch (err) {
-                showToast("Could not adjust score", "bg-rose-600 border-rose-500 text-white");
-            }
-        };
 
         // Remove a completion; if it was scored, subtract its points back out
         window.removeCompletion = function(docId) {
