@@ -113,38 +113,12 @@
             </div>
         </div>
 
-        <!-- TAB CONTENT: Squads Management Tab (Edit Names & Switch Squads) -->
+        <!-- TAB CONTENT: Squads Management Tab (Switch Squads only — renaming is now host-controlled) -->
         <div id="view-squads" class="hidden space-y-4">
             <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
                 <div>
-                    <h3 class="font-extrabold text-lg text-white">Squad Customization</h3>
-                    <p class="text-xs text-zinc-400 mt-1">Change names in real-time or swap active sessions.</p>
-                </div>
-
-                <!-- Squad Renaming Form Fields -->
-                <div class="space-y-3 border-t border-zinc-800 pt-3">
-                    <h4 class="text-sm font-bold text-zinc-300">Rename Squads</h4>
-                    <div class="space-y-2">
-                        <div>
-                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 1 DESIGNATION</label>
-                            <input type="text" id="rename-input-Team1" placeholder="Rename Team 1" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 2 DESIGNATION</label>
-                            <input type="text" id="rename-input-Team2" placeholder="Rename Team 2" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 3 DESIGNATION</label>
-                            <input type="text" id="rename-input-Team3" placeholder="Rename Team 3" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 4 DESIGNATION</label>
-                            <input type="text" id="rename-input-Team4" placeholder="Rename Team 4" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
-                        </div>
-                    </div>
-                    <button onclick="saveCustomTeamNames()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-extrabold transition">
-                        Update Team Names (Globally Syncs)
-                    </button>
+                    <h3 class="font-extrabold text-lg text-white">Your Squad</h3>
+                    <p class="text-xs text-zinc-400 mt-1">Switch which team this device is playing as. Renaming teams is handled by the host.</p>
                 </div>
 
                 <!-- Session switcher option -->
@@ -169,23 +143,93 @@
 
             <!-- Authentic Host Panel -->
             <div id="host-dashboard-container" class="hidden space-y-4">
-                <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-extrabold text-lg text-white">Host Controller Mode</h3>
-                        <span class="text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">ADMIN ACTIVE</span>
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="font-extrabold text-lg text-white">Host Controller Mode</h3>
+                    <span class="text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">ADMIN ACTIVE</span>
+                </div>
+
+                <!-- Squad Renaming (host-only) -->
+                <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                    <div>
+                        <h4 class="font-bold text-sm text-zinc-300">Rename Squads</h4>
+                        <p class="text-[11px] text-zinc-500 mt-1">Names sync live to every device.</p>
                     </div>
-                    
-                    <div class="border-t border-zinc-800 pt-3">
-                        <h4 class="font-bold text-sm text-zinc-300 mb-3">Active Review Pipeline</h4>
-                        <div class="space-y-3" id="host-pipeline-container">
-                            <p class="text-zinc-500 text-xs py-2 italic text-center">No submissions currently requiring dynamic host verification.</p>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 1 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team1" placeholder="Rename Team 1" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 2 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team2" placeholder="Rename Team 2" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 3 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team3" placeholder="Rename Team 3" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-zinc-500 font-extrabold block mb-1">TEAM 4 DESIGNATION</label>
+                            <input type="text" id="rename-input-Team4" placeholder="Rename Team 4" class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
                         </div>
                     </div>
+                    <button onclick="saveCustomTeamNames()" class="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-extrabold transition">
+                        Update Team Names (Globally Syncs)
+                    </button>
+                </div>
+
+                <!-- Team Points & Challenge Management -->
+                <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                    <div>
+                        <h4 class="font-bold text-sm text-zinc-300">Manage Teams</h4>
+                        <p class="text-[11px] text-zinc-500 mt-1">Adjust scores and remove completed challenges.</p>
+                    </div>
+                    <div id="host-manage-container" class="space-y-3">
+                        <p class="text-zinc-500 text-xs py-2 italic text-center">Loading team data…</p>
+                    </div>
+                </div>
+
+                <!-- Extra Review Pipeline -->
+                <div class="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                    <h4 class="font-bold text-sm text-zinc-300">Active Review Pipeline</h4>
+                    <div class="space-y-3" id="host-pipeline-container">
+                        <p class="text-zinc-500 text-xs py-2 italic text-center">No submissions currently requiring dynamic host verification.</p>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-900/40 space-y-3">
+                    <div>
+                        <h4 class="font-bold text-sm text-rose-300">Danger Zone</h4>
+                        <p class="text-[11px] text-rose-400/70 mt-1">Resets all scores and completed challenges for every team. Team names are kept.</p>
+                    </div>
+                    <button onclick="confirmResetGame()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold transition">
+                        Reset Entire Game
+                    </button>
                 </div>
             </div>
         </div>
 
     </main>
+
+    <!-- In-page Media Viewer (Lightbox) -->
+    <div id="media-viewer" class="hidden fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4" onclick="closeMediaViewer()">
+        <div class="relative w-full max-w-3xl" onclick="event.stopPropagation()">
+            <button onclick="closeMediaViewer()" class="absolute -top-11 right-0 text-white text-sm font-bold bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition">✕ Close</button>
+            <div id="media-viewer-content" class="flex items-center justify-center min-h-[120px]"></div>
+        </div>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4">
+            <h3 id="confirm-title" class="font-extrabold text-lg text-white">Are you sure?</h3>
+            <p id="confirm-message" class="text-sm text-zinc-400"></p>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="cancelConfirm()" class="flex-1 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-sm font-bold text-zinc-200 transition">Cancel</button>
+                <button id="confirm-ok-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-sm font-extrabold text-white transition">Confirm</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-zinc-800 flex justify-around py-3 px-2">
@@ -216,7 +260,7 @@
     <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, updateDoc, deleteDoc, getDoc, collection, addDoc, onSnapshot, query, where, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, writeBatch, collection, addDoc, onSnapshot, query, where, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -229,7 +273,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        
+
         // Correct modular configuration for local persistent DB storage
         const db = initializeFirestore(app, {
             localCache: persistentLocalCache({
@@ -285,6 +329,8 @@
             { id: "cheapscape", name: "Cheapscape", cat: "extra", pts: 45, desc: "Buy the cheapest item.", proof: "Bring it and the receipt. The judge picks the winner based on uniqueness, humor, and presentation." }
         ];
 
+        const DEFAULT_TEAMS = ["Team 1", "Team 2", "Team 3", "Team 4"];
+
         let selectedTeam = localStorage.getItem("squadId") || null;
         let selectedCategory = "easy";
         let teamCompletedChallenges = {};
@@ -293,10 +339,14 @@
         const pendingSubmissions = new Set();
 
         // Live listener handles — tracked so we can unsubscribe before re-subscribing
-        // (previously these leaked a new listener every time a team switched or the host tab reopened)
         let unsubscribeLeaderboard = null;
         let unsubscribeCompletions = null;
-        let unsubscribeHostPipeline = null;
+        let unsubscribeAllCompletions = null;
+
+        // Host-side state (populated only while host tab is active)
+        let latestScores = {};            // { "Team 1": { score, checkInTime } }
+        let allCompletionsByTeam = {};    // { "Team 1": [ {docId, ...data} ] }
+        let completionsById = {};         // { docId: {docId, ...data} }  — used by media viewers
 
         // Local state store for synced custom names
         let dynamicTeamNames = {
@@ -308,14 +358,12 @@
 
         // --- Utility helpers ---
 
-        // Team keys are "Team 1" (with a space) but the DOM ids are "Team1" (no space).
-        // This helper bridges the two so element lookups actually resolve.
+        // Team keys are "Team 1" (with a space) but DOM ids are "Team1" (no space).
         function domId(key) {
             return key.replace(/\s+/g, '');
         }
 
-        // Any user-editable string (custom team names) must be escaped before going into innerHTML,
-        // otherwise a team could rename itself to an <img onerror=...> payload and run script for everyone.
+        // Escape any user-editable string before it goes into innerHTML (prevents XSS via team names).
         function escapeHtml(str) {
             if (str == null) return "";
             return String(str)
@@ -324,6 +372,10 @@
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#39;");
+        }
+
+        function isHostAuthed() {
+            return sessionStorage.getItem("host_verified") === "true";
         }
 
         // --- Session Handlers ---
@@ -362,15 +414,15 @@
                 updateHeaderSquadNames();
                 updateSelectionSplashUI();
                 renderChallenges();
+                if (isHostAuthed()) renderHostManagement();
             });
         }
 
-        // Update active displays throughout application elements
         function updateHeaderSquadNames() {
             if (selectedTeam) {
                 document.getElementById("team-display-name").innerText = dynamicTeamNames[selectedTeam] || selectedTeam;
             }
-            // Populate Input fields inside Squad settings
+            // Populate host rename input fields
             Object.keys(dynamicTeamNames).forEach(key => {
                 const el = document.getElementById(`rename-input-${domId(key)}`);
                 if (el) el.value = dynamicTeamNames[key];
@@ -386,7 +438,7 @@
             });
         }
 
-        // Save customized group identifiers
+        // Save customized group identifiers (host panel)
         window.saveCustomTeamNames = async function() {
             const updated = {};
             Object.keys(dynamicTeamNames).forEach(key => {
@@ -394,7 +446,7 @@
                 if (el && el.value.trim() !== "") {
                     updated[key] = el.value.trim();
                 } else {
-                    // Leaving a field blank keeps the current name instead of nuking it back to "Team N"
+                    // Blank field keeps the current name instead of resetting to "Team N"
                     updated[key] = dynamicTeamNames[key] || key;
                 }
             });
@@ -414,9 +466,8 @@
         window.addEventListener('online', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse");
         window.addEventListener('offline', () => document.getElementById("network-indicator").className = "h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse");
 
-        // Tab switching engine with active navigation markers [Fixes Navigation Bugs]
+        // Tab switching engine
         window.switchTab = function(tabId) {
-            // Correct array target mapping matching existing tabs
             const views = ["view-challenges", "view-leaderboard", "view-squads", "view-host"];
             const navs = ["nav-challenges", "nav-leaderboard", "nav-squads", "nav-host"];
 
@@ -424,7 +475,6 @@
                 const el = document.getElementById(view);
                 if (el) el.classList.add("hidden");
             });
-
             navs.forEach(nav => {
                 const el = document.getElementById(nav);
                 if (el) el.classList.remove("active-tab");
@@ -432,7 +482,6 @@
 
             const targetView = document.getElementById(`view-${tabId}`);
             const targetNav = document.getElementById(`nav-${tabId}`);
-
             if (targetView) targetView.classList.remove("hidden");
             if (targetNav) targetNav.classList.add("active-tab");
 
@@ -455,7 +504,86 @@
             renderChallenges();
         };
 
-        // Render Challenges with integrated offline indicator and image preview checks
+        // --- Media Viewer (in-page lightbox) ---
+        function openMediaInline(url, type) {
+            if (!url || url === 'offline') return;
+            const viewer = document.getElementById("media-viewer");
+            const content = document.getElementById("media-viewer-content");
+            content.innerHTML = "";
+
+            const isVideo = typeof type === 'string' && type.startsWith('video');
+            if (isVideo) {
+                content.innerHTML = `<video src="${url}" controls autoplay playsinline class="max-w-full max-h-[80vh] rounded-xl"></video>`;
+            } else {
+                // Try as image; if it fails (e.g. a video with no stored type), fall back to a video element.
+                const img = document.createElement('img');
+                img.className = "max-w-full max-h-[80vh] rounded-xl object-contain";
+                img.onerror = () => {
+                    content.innerHTML = `<video src="${url}" controls autoplay playsinline class="max-w-full max-h-[80vh] rounded-xl"></video>`;
+                };
+                img.src = url;
+                content.appendChild(img);
+            }
+            viewer.classList.remove("hidden");
+        }
+
+        window.closeMediaViewer = function() {
+            const viewer = document.getElementById("media-viewer");
+            const content = document.getElementById("media-viewer-content");
+            content.innerHTML = ""; // removing the element stops any playing video
+            viewer.classList.add("hidden");
+        };
+
+        // Player's own completion (looked up from teamCompletedChallenges)
+        window.viewOwnMedia = function(challengeId) {
+            const d = teamCompletedChallenges[challengeId];
+            if (d) openMediaInline(d.media, d.mediaType);
+        };
+        window.openOwnMediaNewTab = function(challengeId) {
+            const d = teamCompletedChallenges[challengeId];
+            if (d && d.media && d.media !== 'offline') window.open(d.media, '_blank');
+        };
+
+        // Host-side lookups by completion doc id
+        window.viewMediaByDocId = function(docId) {
+            const d = completionsById[docId];
+            if (d) openMediaInline(d.media, d.mediaType);
+        };
+        window.openMediaNewTab = function(docId) {
+            const d = completionsById[docId];
+            if (d && d.media && d.media !== 'offline') window.open(d.media, '_blank');
+        };
+
+        // Reusable pair of media buttons
+        function mediaButtonsHtml(viewFn, tabFn, arg) {
+            return `
+                <div class="pt-1 flex space-x-2">
+                    <button onclick="${viewFn}('${arg}')" class="flex-1 text-center py-2 rounded-xl border border-amber-400/30 bg-amber-400/10 text-xs text-amber-300 font-bold hover:bg-amber-400/20 transition">👁 View Here</button>
+                    <button onclick="${tabFn}('${arg}')" class="flex-1 text-center py-2 rounded-xl border border-zinc-800 bg-zinc-950 text-xs text-zinc-300 font-bold hover:bg-zinc-850 transition">↗ New Tab</button>
+                </div>`;
+        }
+
+        // --- Confirmation modal ---
+        let confirmCallback = null;
+        function askConfirm(title, message, onConfirm) {
+            document.getElementById("confirm-title").innerText = title;
+            document.getElementById("confirm-message").innerText = message;
+            confirmCallback = onConfirm;
+            const okBtn = document.getElementById("confirm-ok-btn");
+            okBtn.onclick = () => {
+                document.getElementById("confirm-modal").classList.add("hidden");
+                const cb = confirmCallback;
+                confirmCallback = null;
+                if (typeof cb === 'function') cb();
+            };
+            document.getElementById("confirm-modal").classList.remove("hidden");
+        }
+        window.cancelConfirm = function() {
+            confirmCallback = null;
+            document.getElementById("confirm-modal").classList.add("hidden");
+        };
+
+        // Render Challenges with media view buttons and pending-review state
         function renderChallenges() {
             const container = document.getElementById("challenges-grid");
             if (!container) return;
@@ -466,8 +594,6 @@
             filtered.forEach(item => {
                 const statusData = teamCompletedChallenges[item.id];
                 const isCompleted = !!statusData;
-                // "Extra" category submissions sit in a host review queue and don't score until approved —
-                // previously the card showed "COMPLETED" immediately, which misleadingly implied points were already awarded.
                 const isPendingReview = isCompleted && statusData.category === 'extra' && !statusData.verified;
                 const isOfflineStatus = statusData && statusData.media === 'offline';
 
@@ -491,7 +617,6 @@
                 `;
 
                 if (!isCompleted) {
-                    // Double Bonus Checkbox UI
                     if (item.id === 'cobblestone_walk') {
                         cardHTML += `
                             <div class="flex items-center space-x-2 py-1">
@@ -500,7 +625,6 @@
                             </div>
                         `;
                     }
-
                     cardHTML += `
                         <div class="pt-2 flex space-x-2">
                             <label class="flex-1 text-center py-2.5 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-850 text-xs text-zinc-300 font-bold cursor-pointer transition">
@@ -525,14 +649,10 @@
                                 ⚠️ Marked offline. Please present evidence directly to the host.
                             </div>
                         `;
-                    } else if (statusData && statusData.media) {
-                        cardHTML += `
-                            <div class="pt-1">
-                                <a href="${statusData.media}" target="_blank" class="inline-flex items-center space-x-1 text-xs text-amber-400 hover:underline">
-                                    <span>🔍 View Submitted Media</span>
-                                </a>
-                            </div>
-                        `;
+                    }
+                    // Media buttons (View Here / New Tab) whenever real media exists
+                    if (statusData && statusData.media && statusData.media !== 'offline') {
+                        cardHTML += mediaButtonsHtml('viewOwnMedia', 'openOwnMediaNewTab', item.id);
                     }
                 }
 
@@ -547,8 +667,6 @@
 
             return new Promise((resolve) => {
                 const reader = new FileReader();
-                // Previously there was no error handling anywhere in this chain, so a failed
-                // read/decode/encode would leave the promise unresolved and the upload would hang forever.
                 reader.onerror = () => resolve(file);
                 reader.onload = (event) => {
                     const img = new Image();
@@ -578,10 +696,7 @@
                         ctx.drawImage(img, 0, 0, width, height);
 
                         canvas.toBlob((blob) => {
-                            if (!blob) {
-                                resolve(file); // toBlob can fail silently; fall back to the original file
-                                return;
-                            }
+                            if (!blob) { resolve(file); return; }
                             resolve(new File([blob], file.name, { type: 'image/jpeg' }));
                         }, 'image/jpeg', 0.82);
                     };
@@ -595,15 +710,12 @@
             const rawFile = event.target.files[0];
             if (!rawFile) return;
 
-            // Prevents a double-tap/slow-network double submit from double-counting points
             if (pendingSubmissions.has(id)) return;
             pendingSubmissions.add(id);
 
             let targetPoints = defaultPoints;
             const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
-            if (isBonusChecked) {
-                targetPoints = defaultPoints * 2;
-            }
+            if (isBonusChecked) targetPoints = defaultPoints * 2;
 
             showToast("Compressing asset for weak networks...", "bg-blue-600 border-blue-400 text-white");
 
@@ -614,13 +726,13 @@
                 showToast("Uploading payload to cloud storage...", "bg-amber-600 border-amber-500 text-white");
                 const uploadTask = uploadBytesResumable(storageRef, readyFile);
 
-                uploadTask.on('state_changed', 
-                    (snapshot) => {}, 
+                uploadTask.on('state_changed',
+                    (snapshot) => {},
                     (err) => {
                         pendingSubmissions.delete(id);
                         showToast(`Upload error: ${err.message}. Saving offline instead!`, "bg-rose-600 border-rose-500 text-white");
                         markOfflineOnly(id, defaultPoints, category);
-                    }, 
+                    },
                     async () => {
                         try {
                             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
@@ -629,6 +741,7 @@
                                 team: selectedTeam,
                                 challengeId: id,
                                 media: downloadUrl,
+                                mediaType: readyFile.type || rawFile.type || "",
                                 points: targetPoints,
                                 category: category,
                                 verified: category !== "extra",
@@ -662,9 +775,7 @@
 
             let targetPoints = defaultPoints;
             const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
-            if (isBonusChecked) {
-                targetPoints = defaultPoints * 2;
-            }
+            if (isBonusChecked) targetPoints = defaultPoints * 2;
 
             try {
                 await setDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
@@ -703,76 +814,73 @@
         }
 
         function listenToLeaderboard() {
-            // Unsubscribe any prior listener first — previously calling this again (e.g. after switching
-            // teams) stacked up a brand-new onSnapshot listener every time, leaking reads and re-render churn.
             if (unsubscribeLeaderboard) unsubscribeLeaderboard();
 
             unsubscribeLeaderboard = onSnapshot(collection(db, "scores"), (snapshot) => {
                 const leaderboardEl = document.getElementById("leaderboard-container");
-                if (!leaderboardEl) return;
-                leaderboardEl.innerHTML = "";
-                
+
                 let teamsList = [];
-                snapshot.forEach(doc => {
-                    teamsList.push({ id: doc.id, ...doc.data() });
+                latestScores = {};
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    teamsList.push({ id: docSnap.id, ...data });
+                    latestScores[docSnap.id] = data;
                 });
 
-                const defaultTeams = ["Team 1", "Team 2", "Team 3", "Team 4"];
-                defaultTeams.forEach(tName => {
+                DEFAULT_TEAMS.forEach(tName => {
                     if (!teamsList.some(t => t.id === tName)) {
                         teamsList.push({ id: tName, score: 0 });
                     }
                 });
 
-                // Rank by Score; ties resolved by earliest check-in timestamp [cite: 32]
                 teamsList.sort((a, b) => {
-                    if (b.score !== a.score) {
-                        return (b.score || 0) - (a.score || 0);
-                    }
+                    if (b.score !== a.score) return (b.score || 0) - (a.score || 0);
                     return getTimestampMs(a.checkInTime) - getTimestampMs(b.checkInTime);
                 });
 
-                teamsList.forEach((t, index) => {
-                    const isUserTeam = t.id === selectedTeam;
-                    if (isUserTeam) {
-                        document.getElementById("team-live-score").innerText = t.score || 0;
-                    }
+                if (leaderboardEl) {
+                    leaderboardEl.innerHTML = "";
+                    teamsList.forEach((t, index) => {
+                        const isUserTeam = t.id === selectedTeam;
+                        if (isUserTeam) {
+                            document.getElementById("team-live-score").innerText = t.score || 0;
+                        }
+                        const rankColors = ["text-amber-400 font-extrabold", "text-zinc-300 font-bold", "text-amber-700 font-semibold", "text-zinc-500"];
+                        const badgeColor = rankColors[index] || "text-zinc-500";
+                        const teamDisplayName = escapeHtml(dynamicTeamNames[t.id] || t.id);
 
-                    const rankColors = ["text-amber-400 font-extrabold", "text-zinc-300 font-bold", "text-amber-700 font-semibold", "text-zinc-500"];
-                    const badgeColor = rankColors[index] || "text-zinc-500";
-                    // Escaped — this is a user-editable team name and was previously injected into innerHTML unescaped (XSS risk)
-                    const teamDisplayName = escapeHtml(dynamicTeamNames[t.id] || t.id);
-
-                    leaderboardEl.innerHTML += `
-                        <div class="flex items-center justify-between p-3 rounded-xl ${isUserTeam ? 'bg-amber-400/5 border border-amber-400/20' : 'bg-zinc-950/40 border border-zinc-850'}">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-sm ${badgeColor}">#${index + 1}</span>
-                                <span class="text-sm font-bold text-white">${teamDisplayName} ${isUserTeam ? '(You)' : ''}</span>
+                        leaderboardEl.innerHTML += `
+                            <div class="flex items-center justify-between p-3 rounded-xl ${isUserTeam ? 'bg-amber-400/5 border border-amber-400/20' : 'bg-zinc-950/40 border border-zinc-850'}">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm ${badgeColor}">#${index + 1}</span>
+                                    <span class="text-sm font-bold text-white">${teamDisplayName} ${isUserTeam ? '(You)' : ''}</span>
+                                </div>
+                                <span class="text-sm font-black text-amber-400">${t.score || 0} pts</span>
                             </div>
-                            <span class="text-sm font-black text-amber-400">${t.score || 0} pts</span>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                }
+
+                // Keep host management score displays fresh
+                if (isHostAuthed()) renderHostManagement();
             });
         }
 
         function listenToSquadCompletions() {
-            // Same leak fix as the leaderboard listener above — unsubscribe the old query before
-            // subscribing to the new team's completions.
             if (unsubscribeCompletions) unsubscribeCompletions();
 
             const q = query(collection(db, "completions"), where("team", "==", selectedTeam));
             unsubscribeCompletions = onSnapshot(q, (snapshot) => {
                 teamCompletedChallenges = {};
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
                     teamCompletedChallenges[data.challengeId] = data;
                 });
                 renderChallenges();
             });
         }
 
-        // Host Panel Authorization Security Handlers [cite: 12]
+        // Host Panel Authorization
         window.verifyHostPin = function() {
             const pinVal = document.getElementById("host-pin-input").value;
             if (pinVal === "1997" || pinVal === "2026") {
@@ -785,70 +893,194 @@
         };
 
         function checkHostSessionAuth() {
-            const isAuthed = sessionStorage.getItem("host_verified") === "true";
-            if (isAuthed) {
+            if (isHostAuthed()) {
                 document.getElementById("host-auth-container").classList.add("hidden");
                 document.getElementById("host-dashboard-container").classList.remove("hidden");
-                loadHostSubmissions();
+                updateHeaderSquadNames(); // fill rename inputs now that panel is visible
+                startHostCompletionsListener();
             } else {
                 document.getElementById("host-auth-container").classList.remove("hidden");
                 document.getElementById("host-dashboard-container").classList.add("hidden");
             }
         }
 
-        function loadHostSubmissions() {
+        // Single listener over ALL completions — feeds the review pipeline, the management view,
+        // and the media viewer lookup map. Guarded against listener leaks.
+        function startHostCompletionsListener() {
+            if (unsubscribeAllCompletions) return; // already running
+
+            unsubscribeAllCompletions = onSnapshot(collection(db, "completions"), (snapshot) => {
+                completionsById = {};
+                allCompletionsByTeam = {};
+                snapshot.forEach(docSnap => {
+                    const data = { docId: docSnap.id, ...docSnap.data() };
+                    completionsById[docSnap.id] = data;
+                    if (!allCompletionsByTeam[data.team]) allCompletionsByTeam[data.team] = [];
+                    allCompletionsByTeam[data.team].push(data);
+                });
+                renderHostPipeline();
+                renderHostManagement();
+            });
+        }
+
+        // Review pipeline = all unverified (extra) submissions
+        function renderHostPipeline() {
             const container = document.getElementById("host-pipeline-container");
             if (!container) return;
 
-            // This was previously re-subscribed every single time the host tab was opened,
-            // stacking listeners indefinitely. Unsubscribe the old one first.
-            if (unsubscribeHostPipeline) unsubscribeHostPipeline();
+            const pending = Object.values(completionsById).filter(d => d.verified === false);
+            if (pending.length === 0) {
+                container.innerHTML = '<p class="text-zinc-500 text-xs py-2 italic text-center">No pending extra review challenges submitted.</p>';
+                return;
+            }
 
-            const q = query(collection(db, "completions"), where("verified", "==", false));
-            unsubscribeHostPipeline = onSnapshot(q, (snapshot) => {
-                container.innerHTML = "";
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-zinc-500 text-xs py-2 italic text-center">No pending extra review challenges submitted.</p>';
-                    return;
+            container.innerHTML = "";
+            pending.forEach(rawData => {
+                const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
+                const groupName = escapeHtml(dynamicTeamNames[rawData.team] || rawData.team);
+
+                let mediaBlock = `<span class="text-amber-500 font-semibold italic text-xs">Offline verification required</span>`;
+                if (rawData.media && rawData.media !== 'offline') {
+                    mediaBlock = mediaButtonsHtml('viewMediaByDocId', 'openMediaNewTab', rawData.docId);
                 }
 
-                snapshot.forEach((snapDoc) => {
-                    const rawData = snapDoc.data();
-                    const documentId = snapDoc.id;
-                    const meta = databasePayload.find(ch => ch.id === rawData.challengeId);
-                    // Escaped — same XSS concern as the leaderboard team name
-                    const groupName = escapeHtml(dynamicTeamNames[rawData.team] || rawData.team);
-
-                    let mediaContent = `<span class="text-amber-500 font-semibold italic text-xs">Offline Verification Required</span>`;
-                    if (rawData.media && rawData.media !== 'offline') {
-                        mediaContent = `<a href="${rawData.media}" target="_blank" class="block">
-                            <img src="${rawData.media}" class="w-full h-24 object-cover rounded-lg border border-zinc-800 hover:opacity-80 transition"/>
-                            <span class="text-[10px] text-zinc-500 mt-1 block text-center underline">Click to expand</span>
-                        </a>`;
-                    }
-
-                    container.innerHTML += `
-                        <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">${groupName}</span>
-                                    <h5 class="text-xs font-bold text-white mt-1.5">${meta ? meta.name : rawData.challengeId}</h5>
-                                </div>
-                                <span class="text-xs font-black text-amber-500">${rawData.points} PTS</span>
+                container.innerHTML += `
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">${groupName}</span>
+                                <h5 class="text-xs font-bold text-white mt-1.5">${meta ? meta.name : rawData.challengeId}</h5>
                             </div>
-                            <div class="py-1">
-                                ${mediaContent}
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="judgeSubmission('${documentId}', 'approve', '${rawData.team}', ${rawData.points})" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">Approve</button>
-                                <button onclick="judgeSubmission('${documentId}', 'reject', '${rawData.team}', 0)" class="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition">Deny</button>
-                            </div>
+                            <span class="text-xs font-black text-amber-500">${rawData.points} PTS</span>
                         </div>
-                    `;
-                });
+                        <div class="py-1">${mediaBlock}</div>
+                        <div class="flex space-x-2">
+                            <button onclick="judgeSubmission('${rawData.docId}', 'approve', '${rawData.team}', ${rawData.points})" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">Approve</button>
+                            <button onclick="judgeSubmission('${rawData.docId}', 'reject', '${rawData.team}', 0)" class="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition">Deny</button>
+                        </div>
+                    </div>
+                `;
             });
         }
+
+        // Per-team management: adjust score, remove completions
+        function renderHostManagement() {
+            const container = document.getElementById("host-manage-container");
+            if (!container || !isHostAuthed()) return;
+
+            container.innerHTML = "";
+            DEFAULT_TEAMS.forEach(key => {
+                const name = escapeHtml(dynamicTeamNames[key] || key);
+                const score = (latestScores[key] && latestScores[key].score) || 0;
+                const comps = allCompletionsByTeam[key] || [];
+
+                let compRows = "";
+                if (comps.length === 0) {
+                    compRows = `<p class="text-[11px] text-zinc-600 italic py-1">No challenges logged.</p>`;
+                } else {
+                    comps
+                        .slice()
+                        .sort((a, b) => getTimestampMs(a.timestamp) - getTimestampMs(b.timestamp))
+                        .forEach(c => {
+                            const meta = databasePayload.find(ch => ch.id === c.challengeId);
+                            const chName = escapeHtml(meta ? meta.name : c.challengeId);
+                            const stateBadge = c.verified
+                                ? `<span class="text-[9px] font-bold text-emerald-400">SCORED</span>`
+                                : `<span class="text-[9px] font-bold text-amber-400">PENDING</span>`;
+                            const mediaBtn = (c.media && c.media !== 'offline')
+                                ? `<button onclick="viewMediaByDocId('${c.docId}')" class="text-[10px] text-amber-300 font-bold underline">view</button>`
+                                : `<span class="text-[10px] text-zinc-600 italic">offline</span>`;
+                            compRows += `
+                                <div class="flex items-center justify-between gap-2 py-1.5 border-t border-zinc-900">
+                                    <div class="min-w-0">
+                                        <p class="text-[11px] font-bold text-zinc-200 truncate">${chName}</p>
+                                        <p class="text-[10px] text-zinc-500">${c.points} pts · ${stateBadge}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        ${mediaBtn}
+                                        <button onclick="removeCompletion('${c.docId}')" class="text-[10px] text-rose-400 font-bold hover:text-rose-300">remove</button>
+                                    </div>
+                                </div>`;
+                        });
+                }
+
+                container.innerHTML += `
+                    <div class="rounded-xl bg-zinc-950 border border-zinc-800 p-3 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h5 class="text-sm font-extrabold text-white truncate">${name}</h5>
+                            <span class="text-xs font-black text-amber-400">${score} pts</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustTeamScore('${key}', -5)" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:bg-zinc-800">-5</button>
+                            <input type="number" id="score-input-${domId(key)}" value="${score}" class="w-16 text-center bg-zinc-900 border border-zinc-800 text-white rounded-lg py-1.5 text-xs focus:outline-none focus:border-amber-500">
+                            <button onclick="adjustTeamScore('${key}', 5)" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:bg-zinc-800">+5</button>
+                            <button onclick="setTeamScore('${key}')" class="flex-1 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-extrabold transition">Set Score</button>
+                        </div>
+                        <div class="pt-1">
+                            <p class="text-[10px] font-extrabold text-zinc-500 uppercase mb-0.5">Completed (${comps.length})</p>
+                            ${compRows}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Set a team's absolute score to the value in its input
+        window.setTeamScore = async function(team) {
+            const el = document.getElementById(`score-input-${domId(team)}`);
+            if (!el) return;
+            const val = Number(el.value);
+            if (!Number.isFinite(val)) {
+                showToast("Enter a valid number", "bg-rose-600 border-rose-500 text-white");
+                return;
+            }
+            try {
+                await setDoc(doc(db, "scores", team), {
+                    score: val,
+                    checkInTime: (latestScores[team] && latestScores[team].checkInTime) || new Date()
+                }, { merge: true });
+                showToast(`${dynamicTeamNames[team] || team} set to ${val} pts`, "bg-emerald-600 border-emerald-500 text-white");
+            } catch (err) {
+                showToast("Could not update score", "bg-rose-600 border-rose-500 text-white");
+            }
+        };
+
+        // Quick relative adjustment
+        window.adjustTeamScore = async function(team, delta) {
+            try {
+                await setDoc(doc(db, "scores", team), {
+                    score: increment(delta),
+                    checkInTime: (latestScores[team] && latestScores[team].checkInTime) || new Date()
+                }, { merge: true });
+            } catch (err) {
+                showToast("Could not adjust score", "bg-rose-600 border-rose-500 text-white");
+            }
+        };
+
+        // Remove a completion; if it was scored, subtract its points back out
+        window.removeCompletion = function(docId) {
+            const c = completionsById[docId];
+            if (!c) return;
+            const meta = databasePayload.find(ch => ch.id === c.challengeId);
+            const label = meta ? meta.name : c.challengeId;
+            askConfirm(
+                "Remove challenge?",
+                `Remove "${label}" from ${dynamicTeamNames[c.team] || c.team}? ${c.verified ? `This will subtract ${c.points} points.` : "No points were awarded yet."}`,
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, "completions", docId));
+                        if (c.verified === true) {
+                            await setDoc(doc(db, "scores", c.team), {
+                                score: increment(-c.points)
+                            }, { merge: true });
+                        }
+                        showToast("Challenge removed", "bg-emerald-600 border-emerald-500 text-white");
+                    } catch (err) {
+                        showToast("Could not remove challenge", "bg-rose-600 border-rose-500 text-white");
+                    }
+                }
+            );
+        };
 
         window.judgeSubmission = async function(id, decision, team, points) {
             try {
@@ -858,7 +1090,7 @@
                         score: increment(points),
                         checkInTime: new Date()
                     }, { merge: true });
-                    showToast(`Approved entry! Added +${points} to ${dynamicTeamNames[team] || team}`, "bg-emerald-600 border-emerald-500 text-white");
+                    showToast(`Approved! Added +${points} to ${dynamicTeamNames[team] || team}`, "bg-emerald-600 border-emerald-500 text-white");
                 } else {
                     await deleteDoc(doc(db, "completions", id));
                     showToast("Denied submission successfully.", "bg-rose-600 border-rose-500 text-white");
@@ -867,6 +1099,45 @@
                 showToast("Action execution failure", "bg-rose-600 border-rose-500 text-white");
             }
         };
+
+        // Reset the entire game (host-only, confirmed)
+        window.confirmResetGame = function() {
+            askConfirm(
+                "Reset entire game?",
+                "This permanently deletes ALL scores and completed challenges for every team. Team names are kept. This cannot be undone.",
+                resetGame
+            );
+        };
+
+        async function resetGame() {
+            try {
+                showToast("Resetting game…", "bg-amber-600 border-amber-500 text-white");
+
+                // Delete all completions
+                const compSnap = await getDocs(collection(db, "completions"));
+                let batch = writeBatch(db);
+                let count = 0;
+                for (const d of compSnap.docs) {
+                    batch.delete(d.ref);
+                    if (++count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+                }
+                if (count > 0) await batch.commit();
+
+                // Delete all scores
+                const scoreSnap = await getDocs(collection(db, "scores"));
+                batch = writeBatch(db);
+                count = 0;
+                for (const d of scoreSnap.docs) {
+                    batch.delete(d.ref);
+                    if (++count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+                }
+                if (count > 0) await batch.commit();
+
+                showToast("Game reset complete.", "bg-emerald-600 border-emerald-500 text-white");
+            } catch (err) {
+                showToast(`Reset failed: ${err.message}`, "bg-rose-600 border-rose-500 text-white");
+            }
+        }
 
         function showToast(msg, bgClasses) {
             const t = document.getElementById("toast");
