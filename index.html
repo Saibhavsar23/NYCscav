@@ -274,24 +274,21 @@
             { id: "italy_flag", name: "Little Italy Flag Spot", cat: "easy", pts: 10, desc: "Find an Italian flag, green-white-red decoration, or Little Italy street banner.", proof: "Photo or 5-second wave video beside the flag/banner." },
             { id: "two_lang", name: "Two-Language Sign Hunt", cat: "easy", pts: 10, desc: "Find a storefront, menu, or sign using two languages.", proof: "Photo with one teammate pointing to both languages." },
             { id: "sidewalk_freeze", name: "Sidewalk Freeze Frame", cat: "easy", pts: 10, desc: "Pick a safe sidewalk spot and freeze like a movie poster for three seconds.", proof: "Photo of at least one teammate holding the pose." },
-            { id: "sussy_outfit", name: "Sussy Outfit", cat: "easy", pts: 10, desc: "Find the brightest, strangest, or most stylish outfit or piece of clothing and wear it.", proof: "Photo where one member wears the article." },
 
             // LANDMARKS [cite: 17, 18]
             { id: "green_monster", name: "The Green Monster", cat: "landmark", pts: 15, desc: "Find the large green ivy wall on Crosby Street, between Prince and Spring.", proof: "Photo a teammate in front of the wall." },
             { id: "cannoli_quest", name: "The Cannoli Quest", cat: "landmark", pts: 15, desc: "Find a giant cannoli sign, pastry display, or cannoli-focused storefront on or near Mulberry Street.", proof: "Photo of a teammate dramatically pointing at it." },
             { id: "chinatown_gateway", name: "The Chinatown Gateway", cat: "landmark", pts: 15, desc: "Reach the Lin Ze Xu statue area at Chatham Square or the Chinatown Information Kiosk area.", proof: "Photo of a teammate dramatically pointing at it." },
-            { id: "cobblestone_walk", name: "The Cobblestone Walk", cat: "landmark", pts: 15, desc: "Find a Belgian-block/cobblestone-style SoHo street. (2x BONUS: Film a 5-second slow-motion 'album intro' walk as a team.)", proof: "Team photo in front of the path." },
+            { id: "cobblestone_walk", name: "The Cobblestone Walk", cat: "landmark", pts: 15, desc: "Find a Belgian-block/cobblestone-style SoHo street.", proof: "Team photo in front of the path." },
             { id: "doyers_curve", name: "Doyers Street Curve", cat: "landmark", pts: 15, desc: "Find the curved bend of Doyers Street in Chinatown.", proof: "Wide photo showing the curve and at least one teammate." },
             { id: "columbus_statue", name: "Columbus Park Statue Stop", cat: "landmark", pts: 15, desc: "Find the Dr. Sun Yat-sen statue area in Columbus Park.", proof: "Team photo or video near the statue/plaza." },
-            { id: "canal_street", name: "Canal Street", cat: "landmark", pts: 15, desc: "Find an official Canal Street sign.", proof: "Photo of a teammate dramatically pointing at it." },
             { id: "mulberry_moment", name: "Mulberry Street Moment", cat: "landmark", pts: 15, desc: "Find a clearly visible Mulberry Street sign or Little Italy street identity marker.", proof: "Photo of a teammate dramatically pointing at it." },
 
             // CREATIVE [cite: 19, 20]
             { id: "language_exchange", name: "The Language Exchange", cat: "creative", pts: 35, desc: "Politely ask a Chinatown shopkeeper, vendor, or local how to say 'Good morning' or 'Victory' in Mandarin or Cantonese.", proof: "Short video of the exchange and repeat-back." },
             { id: "sticker_wall", name: "The Sticker Wall", cat: "creative", pts: 35, desc: "Find a high-density street art or sticker wall in SoHo.", proof: "Macro photo" },
             { id: "high_fashion", name: "The High-Fashion Flex", cat: "creative", pts: 35, desc: "Enter a SoHo designer, boutique, or flagship-style store and find the most expensive or ridiculous-looking item.", proof: "Photo if allowed; otherwise outside 10-second recap naming the item and price." },
-            { id: "color_palette", name: "The Color Palette Hunt", cat: "creative", pts: 35, desc: "Create a mini collage of five colors/textures from the route: cast iron, brick, neon, red/gold, pastry, tile, etc.", proof: "One collage image or five-photo sequence." },
-            { id: "cheap_eat", name: "Cheap Eat Speed Bite", cat: "creative", pts: 35, desc: "Buy one cheap, small local snack such as a bakery bun, dumpling, mini pastry, or cannoli piece.", proof: "Receipt photo plus video of one teammate finishing it in under 30 seconds." },
+            { id: "cheap_eat", name: "Cheap Eat Speed Bite", cat: "creative", pts: 35, desc: "Buy one cheap, small local snack such as a bakery bun, dumpling, mini pastry, or cannoli piece.", proof: "Receipt photo plus photo of a team member eating it." },
             { id: "one_bite", name: "One-Bite Food Review", cat: "creative", pts: 35, desc: "After trying any purchased snack, give it a dramatic rating.", proof: "10-second video review using a score out of 10." },
             { id: "commercial", name: "The 15-Second Commercial", cat: "creative", pts: 35, desc: "Choose a public storefront, snack, or street view and make a fake commercial for it.", proof: "15-second video with slogan, product/place, and team energy." },
 
@@ -301,7 +298,6 @@
             { id: "menu_math", name: "Menu Math Showdown", cat: "hard", pts: 45, desc: "Find two different snack/dessert prices from different neighborhoods and calculate which is cheaper.", proof: "Photos of both prices." },
             { id: "history_sentence", name: "History in One Sentence", cat: "hard", pts: 45, desc: "At Columbus Park, Chatham Square, or a public historic marker, explain why the spot matters in one clean sentence.", proof: "10-second video with the location visible." },
             { id: "receipt_race", name: "Receipt Race Under $6", cat: "hard", pts: 45, desc: "Buy the cheapest shareable snack you can find for $6 or less.", proof: "Receipt photo plus 5-second video showing the item and each teammate taking one safe bite." },
-            { id: "video_relay", name: "Four-Stop Video Relay", cat: "hard", pts: 45, desc: "Record four separate 3-second clips in four different locations and stitch them as one route relay.", proof: "One combined video or four clips posted back-to-back within 12 minutes." },
 
             // EXTRA [cite: 23, 24]
             { id: "collectables", name: "Collectables", cat: "extra", pts: 45, desc: "Buy or find the coolest small collectible, souvenir, or random object.", proof: "Bring it and the receipt. The judge picks the winner based on uniqueness, humor, and presentation." },
@@ -592,14 +588,6 @@
                 `;
 
                 if (!isCompleted) {
-                    if (item.id === 'cobblestone_walk') {
-                        cardHTML += `
-                            <div class="flex items-center space-x-2 py-1">
-                                <input type="checkbox" id="bonus-cobblestone" class="rounded bg-zinc-950 border-zinc-800 text-amber-400 focus:ring-0">
-                                <label for="bonus-cobblestone" class="text-xs text-zinc-400 font-semibold">Verify 2x Bonus video intro (+15 points)</label>
-                            </div>
-                        `;
-                    }
                     cardHTML += `
                         <div class="pt-2 flex space-x-2">
                             <label class="flex-1 text-center py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-xs text-zinc-950 font-extrabold cursor-pointer transition">
@@ -703,9 +691,7 @@
             if (pendingSubmissions.has(id)) return;
             pendingSubmissions.add(id);
 
-            let targetPoints = defaultPoints;
-            const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
-            if (isBonusChecked) targetPoints = defaultPoints * 2;
+            const targetPoints = defaultPoints;
 
             showToast("Compressing asset for weak networks...", "bg-blue-600 border-blue-400 text-white");
 
@@ -763,9 +749,7 @@
             if (pendingSubmissions.has(id)) return;
             pendingSubmissions.add(id);
 
-            let targetPoints = defaultPoints;
-            const isBonusChecked = (id === 'cobblestone_walk' && document.getElementById('bonus-cobblestone')?.checked);
-            if (isBonusChecked) targetPoints = defaultPoints * 2;
+            const targetPoints = defaultPoints;
 
             try {
                 await setDoc(doc(db, "completions", `${selectedTeam}_${id}`), {
